@@ -74,13 +74,15 @@ function TOOL:LeftClick(tool_tr)
         spawnpoint:SetSpawnPointColor(self:GetColor():ToVector())
         spawnpoint:SetIsMasterSpawnPoint(is_master)
 
+        tool_tr.Entity = spawnpoint
+
+        spawnpoint = spawnpoint:GetSpawnPointParent() or spawnpoint
+
         if is_master then
             spawnpoint:AddSpawnFlags(SF_MASTER_SPAWNPOINT)
         else
             spawnpoint:RemoveSpawnFlags(SF_MASTER_SPAWNPOINT)
         end
-
-        tool_tr.Entity = spawnpoint
 
         invalidate_spawnpoints_cache()
 
