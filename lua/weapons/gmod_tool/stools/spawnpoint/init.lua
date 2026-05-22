@@ -5,18 +5,27 @@ end
 
 function TOOL:Reload()
     local degrees = self:GetClientNumber('rotate_degrees')
-    local rotation = self:GetClientNumber('rotation') + degrees
+    local spawnpoint = self:GetSpawnPointOnCrosshair()
 
-    if rotation >= 360 then
-        rotation = 0
+    if spawnpoint then
+        spawnpoint = spawnpoint:GetSpawnPointParent() or spawnpoint
+
+        local ang = spawnpoint:GetAngles()
+        local rotation = ang.y + degrees
+
+        rotation = math.SnapTo(rotation % 360, degrees)
+        ang.y = rotation
+
+        spawnpoint:SetAngles(ang)
+    else
+        local rotation = self:GetClientNumber('rotation') + degrees
+        rotation = math.SnapTo(rotation % 360, degrees)
+
+        self:GetOwner():ConCommand('spawnpoint_rotation ' .. rotation)
     end
-
-    rotation = math.SnapTo(rotation, degrees)
-
-    self:GetOwner():ConCommand('spawnpoint_rotation ' .. rotation)
 end
 
-function TOOL:GetSpawnPoint()
+function TOOL:GetSpawnPointOnCrosshair()
     local index = self:GetClientNumber('index')
 
     if index < 0 then
@@ -33,5 +42,5 @@ function TOOL:GetSpawnPoint()
 end
 
 function TOOL:Think()
-    self:SetOperation(self:GetSpawnPoint() and 1 or 0)
+    self:SetOperation(self:GetSpawnPointOnCrosshair() and 1 or 0)
 end

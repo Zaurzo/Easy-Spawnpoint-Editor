@@ -49,3 +49,78 @@ function TOOL:GetTrace()
 
     return util.TraceLine(trace)
 end
+
+local SF_MASTER_SPAWNPOINT = 1
+
+function TOOL:LeftClick(tool_tr)
+    local tr = self:GetTrace()
+    local spawnpoint = tr.Entity
+
+    tool_tr.HitNormal = tr.HitNormal
+    tool_tr.HitPos = tr.HitPos
+
+    -- Apply settings to spawnpoint on crosshair
+    if self:GetOperation() == 1 and IsValid(spawnpoint) then
+        local is_master = self:GetClientBool('master')
+
+        spawnpoint:SetSpawnPointColor(self:GetColor():ToVector())
+        spawnpoint:SetIsMasterSpawnPoint(is_master)
+
+        if is_master then
+            spawnpoint:AddSpawnFlags(SF_MASTER_SPAWNPOINT)
+        else
+            spawnpoint:RemoveSpawnFlags(SF_MASTER_SPAWNPOINT)
+        end
+
+        tool_tr.Entity = spawnpoint
+
+        return true
+    end
+
+    if SERVER then
+        spawnpoint = ents.Create('networked_spawnpoint')
+
+        if not spawnpoint:IsValid() then
+            error('could not create networked spawnpoint')
+        end
+
+        spawnpoint:SetPos(tr.HitPos)
+        spawnpoint:SetAngles(self:GetAngle())
+        spawnpoint:Spawn()
+        spawnpoint:SetSpawnPointColor(self:GetColor():ToVector())
+
+        if self:GetClientBool('master') then
+            spawnpoint:SetIsMasterSpawnPoint(true)
+            spawnpoint:AddSpawnFlags(SF_MASTER_SPAWNPOINT)
+        end
+
+        local gm = gmod.GetGamemode()
+
+        if gm then
+            gm.SpawnPoints = nil -- Invalidate the SpawnPoints cache
+        end
+    end
+
+    return true
+end
+
+function TOOL:RightClick(tool_tr)
+    if self:GetOperation() ~= 1 then -- Operation is set to 1 if we're looking at a spawnpoint
+        return false
+    end
+
+    local tr = self:GetTrace()
+    local spawnpoint = tr.Entity
+
+    if not IsValid(spawnpoint) then
+        return false
+    end
+
+    tool_tr.HitNormal = tr.HitNormal
+    tool_tr.HitPos = tr.HitPos
+    tool_tr.Entity = spawnpoint
+
+    spawnpoint:Remove()
+
+    return true
+end
