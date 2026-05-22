@@ -3,7 +3,6 @@ AddCSLuaFile()
 
 ENT.Base = 'base_anim'
 ENT.Type = 'anim'
-ENT.AutomaticFrameAdvance = true
 
 function ENT:Initialize()
     self:SetModel('models/editor/playerstart.mdl')
@@ -20,11 +19,6 @@ function ENT:Initialize()
     if CLIENT then
         self.halo = { self }
     end
-end
-
-function ENT:Think()
-    self:NextThink(CurTime())
-    return true
 end
 
 function ENT:SetupDataTables()

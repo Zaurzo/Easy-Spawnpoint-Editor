@@ -52,6 +52,14 @@ end
 
 local SF_MASTER_SPAWNPOINT = 1
 
+local function invalidate_spawnpoints_cache()
+    local gm = gmod.GetGamemode()
+
+    if gm then
+        gm.SpawnPoints = nil
+    end
+end
+
 function TOOL:LeftClick(tool_tr)
     local tr = self:GetTrace()
     local spawnpoint = tr.Entity
@@ -74,6 +82,8 @@ function TOOL:LeftClick(tool_tr)
 
         tool_tr.Entity = spawnpoint
 
+        invalidate_spawnpoints_cache()
+
         return true
     end
 
@@ -94,11 +104,7 @@ function TOOL:LeftClick(tool_tr)
             spawnpoint:AddSpawnFlags(SF_MASTER_SPAWNPOINT)
         end
 
-        local gm = gmod.GetGamemode()
-
-        if gm then
-            gm.SpawnPoints = nil -- Invalidate the SpawnPoints cache
-        end
+        invalidate_spawnpoints_cache()
     end
 
     return true
@@ -121,6 +127,8 @@ function TOOL:RightClick(tool_tr)
     tool_tr.Entity = spawnpoint
 
     spawnpoint:Remove()
+
+    invalidate_spawnpoints_cache()
 
     return true
 end

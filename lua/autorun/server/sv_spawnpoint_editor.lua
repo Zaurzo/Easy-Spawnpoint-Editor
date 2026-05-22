@@ -40,6 +40,7 @@ hook.Add('InitPostEntity', 'EasySpawnpointEditor.Initialize', function()
     table.insert(extra_classes, 'networked_spawnpoint')
 end)
 
+-- Don't choose networked spawnpoints that are just for display
 hook.Add('IsSpawnpointSuitable', 'EasySpawnpointEditor', function(ply, spawnpoint)
     if spawnpoint:GetClass() == 'networked_spawnpoint' and spawnpoint:GetSpawnPointParent() then
         return false
