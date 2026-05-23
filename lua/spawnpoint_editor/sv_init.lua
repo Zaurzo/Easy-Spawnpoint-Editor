@@ -41,6 +41,7 @@ hook.Add('InitPostEntity', 'SpawnpointEditor.Initialize', function()
         networked_spawnpoint:SetPos(data.pos)
         networked_spawnpoint:SetAngles(data.ang)
         networked_spawnpoint:Spawn()
+        networked_spawnpoint:AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES)
         networked_spawnpoint:SetSpawnPointColor(data.color)
         networked_spawnpoint:SetIsMasterSpawnPoint(data.master)
 
@@ -81,7 +82,6 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'CreateDisplays', function(ent)
 
         networked_spawnpoint:Spawn()
         networked_spawnpoint:SetSpawnPointParent(ent)
-        networked_spawnpoint:AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES)
 
         if data then
             networked_spawnpoint:SetSpawnPointColor(data.color)
