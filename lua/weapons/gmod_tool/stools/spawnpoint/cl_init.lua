@@ -41,7 +41,9 @@ function TOOL:DrawHUD()
         end
 
         return
-    elseif current_spawnpoint then
+    end
+    
+    if current_spawnpoint then
         current_spawnpoint = nil
 
         self:SetClientNumber('index', -1)
@@ -60,7 +62,7 @@ function TOOL:DrawHUD()
 
     render_settings.pos = tr.HitPos
     render_settings.angle = self:GetAngle()
-    ghost_spawnpoint.color = self:GetColor():ToVector()
+    ghost_spawnpoint.color = self:GetColorVector()
 
     cam.Start3D()
 
@@ -87,4 +89,8 @@ function TOOL.BuildCPanel(panel)
         'spawnpoint_g', 
         'spawnpoint_b'
     )
+
+    panel:Button('#tool.spawnpoint.button_restore', 'spawnpoint_restore_default')
+    panel:Button('#tool.spawnpoint.button_destroy_map', 'spawnpoint_destroy_map_created')
+    panel:Button('#tool.spawnpoint.button_destroy_player', 'spawnpoint_destroy_player_created')
 end

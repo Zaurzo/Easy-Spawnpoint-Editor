@@ -61,19 +61,44 @@ if SERVER then
     function ENT:GetSpawnPointParent()
         return self.SpawnPointParent
     end
+
+    function ENT:GetSpawnPointMapID()
+        local spawnpoint = self.SpawnPointParent
+        if not spawnpoint then return end
+
+        local creation_id = spawnpoint:MapCreationID()
+
+        if creation_id ~= -1 then
+            return creation_id
+        end
+
+        return nil
+    end
+
+    function ENT:Think()
+        self:NextThink(CurTime())
+        return true
+    end
 end
 
 if CLIENT then
     function ENT:Think()
+        self:NextThink(CurTime())
+
         self.CanDraw = false
 
         local ply = LocalPlayer()
         local wep = ply:GetActiveWeapon()
 
-        if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then return end
+        if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then
+            return true
+        end
 
         local tool = ply:GetTool()
-        if not tool or tool.Mode ~= 'spawnpoint' then return end
+
+        if not tool or tool.Mode ~= 'spawnpoint' then
+            return true
+        end
 
         local index = self:EntIndex()
 
@@ -93,6 +118,8 @@ if CLIENT then
         end
 
         self.CanDraw = true
+
+        return true
     end
 
     function ENT:Draw()
