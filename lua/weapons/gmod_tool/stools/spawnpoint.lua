@@ -1,5 +1,5 @@
 
-TOOL.Category = 'Construction'
+TOOL.Category = 'Zaurzo'
 TOOL.Name = '#tool.spawnpoint.name'
 
 TOOL.ClientConVar['r'] = 0
@@ -155,7 +155,7 @@ function TOOL:RightClick(tool_tr)
                 invalidate_spawnpoints_cache()
             end
         end)
-        
+
         hook.Run('SpawnpointEditor.OnRemoved', ent)
     end
 
@@ -185,7 +185,7 @@ function TOOL:Reload(tool_tr)
 
         return true
     end
-    
+
     local rotation = self:GetClientNumber('rotation') + degrees
     rotation = math.SnapTo(rotation % 360, degrees)
 

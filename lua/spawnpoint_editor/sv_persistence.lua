@@ -1,16 +1,23 @@
 
+local persistence = {
+    path = 'spawnpoint_editor/' .. game.GetMap() .. '.json',
+
+    Load = function(self)
+        local json = file.Read(self.path, 'DATA')
+
+        if json then
+            g_SpawnPoints = util.JSONToTable(json)
+        end
+    end,
+
+    Save = function(self)
+        file.Write(self.path, util.TableToJSON(g_SpawnPoints, true))
+    end
+}
+
 file.CreateDir('spawnpoint_editor')
 
-local persistence_path = 'spawnpoint_editor/' .. game.GetMap() .. '.json'
-local json = file.Read(persistence_path, 'DATA')
-
-if json then
-    g_SpawnPoints = util.JSONToTable(json)
-end
-
-local function save_persistence()
-    file.Write(persistence_path, util.TableToJSON(g_SpawnPoints, true))
-end
+persistence:Load()
 
 hook.Add('SpawnpointEditor.OnCreated', 'OnCreated', function(spawnpoint)
     local data = {
@@ -23,7 +30,7 @@ hook.Add('SpawnpointEditor.OnCreated', 'OnCreated', function(spawnpoint)
 
     table.insert(g_SpawnPoints[1], data)
 
-    save_persistence()
+    persistence:Save()
 end)
 
 hook.Add('SpawnpointEditor.OnRemoved', 'OnRemoved', function(spawnpoint)
@@ -40,7 +47,7 @@ hook.Add('SpawnpointEditor.OnRemoved', 'OnRemoved', function(spawnpoint)
         end
     end
 
-    save_persistence()
+    persistence:Save()
 end)
 
 hook.Add('SpawnpointEditor.OnChanged', 'OnChanged', function(spawnpoint)
@@ -67,11 +74,13 @@ hook.Add('SpawnpointEditor.OnChanged', 'OnChanged', function(spawnpoint)
         end
     end
 
-    save_persistence()
+    persistence:Save()
 end)
 
 concommand.Add('spawnpoint_save', function(ply)
     if not IsValid(ply) or ply:IsSuperAdmin() then
-        save_persistence()
+        persistence:Save()
     end
 end)
+
+return persistence
