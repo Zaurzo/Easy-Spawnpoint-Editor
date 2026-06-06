@@ -105,8 +105,6 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
         ent:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
     end
 
-    print(data.ang, data.color)
-
     ent:SetAngles(data.ang)
 
     networked_spawnpoint:SetIsMasterSpawnPoint(data.master)
