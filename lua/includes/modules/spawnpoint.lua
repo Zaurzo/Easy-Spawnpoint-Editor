@@ -156,6 +156,10 @@ hook.Add('OnGamemodeLoaded', 'RemoveUnsuitableSpawnPoints', function()
     function GM:PlayerSelectSpawn(ply, transition)
         local point = PlayerSelectSpawn(self, ply, transition)
 
+        if not self.SpawnPoints then -- We likely aren't using the default selector
+            return point
+        end
+
         -- We selected an unsuitable spawnpoint
         if point and unsuitable_points[point] then
             local sanitized_list = {}
@@ -166,7 +170,7 @@ hook.Add('OnGamemodeLoaded', 'RemoveUnsuitableSpawnPoints', function()
             -- We do this because of how the default spawnpoint selector works.
             -- Even if all the spawnpoints it tries fail IsSpawnpointSuitable, it will
             -- ultimately just force itself to use one.
-            for k, point in ipairs(self.SpawnPoints or {}) do
+            for k, point in ipairs(self.SpawnPoints) do
                 if not unsuitable_points[point] then
                     table.insert(sanitized_list, point)
                 end

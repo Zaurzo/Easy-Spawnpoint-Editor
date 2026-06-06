@@ -155,8 +155,6 @@ function TOOL:RightClick(tool_tr)
 
             ent:Destroy()
 
-            spawnpoint.InvalidateCache()
-
             return true
         end
 
