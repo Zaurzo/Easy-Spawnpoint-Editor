@@ -3,6 +3,7 @@ ENT.Base = 'base_anim'
 ENT.Type = 'anim'
 ENT.Model = 'models/editor/playerstart.mdl'
 ENT.BodyMaterial = 'editor/orange_mono'
+ENT.DoNotDuplicate = true
 
 function ENT:Initialize()
     self:SetModel(self.Model)
