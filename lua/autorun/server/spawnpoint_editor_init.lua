@@ -81,7 +81,7 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
 
     local data = savedata:GetChangeData(ent)
 
-    if data then
+    if data and not data.removed then
         if data.master then
             ent:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
         else
@@ -110,6 +110,11 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
             networked_spawnpoint:SetSpawnPointColor(data.color)
         end
     end
+end)
+
+-- Internal hook
+hook.Add('SpawnpointEditor.OnDestroyMapCreatedPoint', 'SpawnpointEditor', function(map_id)
+    points.changed[map_id] = { removed = true }
 end)
 
 hook.Add('ShutDown', 'SpawnpointEditor.Save', function()

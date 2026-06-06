@@ -148,7 +148,11 @@ function TOOL:RightClick(tool_tr)
 
 	    util.Effect('entity_remove', ed, true, true)
 
-        if ent:GetSpawnPointParent() then
+		local map_id = ent:GetSpawnPointMapID()
+
+        if map_id then
+            hook.Run('SpawnpointEditor.OnDestroyMapCreatedPoint', map_id)
+
             ent:Destroy()
 
             spawnpoint.InvalidateCache()
