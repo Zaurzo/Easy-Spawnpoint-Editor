@@ -1,10 +1,12 @@
 
 ENT.Base = 'base_anim'
 ENT.Type = 'anim'
+ENT.Model = 'models/editor/playerstart.mdl'
+ENT.BodyMaterial = 'editor/orange_mono'
 
 function ENT:Initialize()
-    self:SetModel('models/editor/playerstart.mdl')
-    self:SetSubMaterial(0, 'editor/orange_mono')
+    self:SetModel(self.Model)
+    self:SetSubMaterial(0, self.BodyMaterial)
     self:EnableCustomCollisions()
     self:DrawShadow(false)
     self:SetSolid(SOLID_BBOX)
