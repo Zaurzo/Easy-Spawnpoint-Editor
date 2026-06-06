@@ -188,7 +188,7 @@ function TOOL:Reload(tool_tr)
             local point = parent or ent
             local ang = point:GetAngles()
 
-            ang.y = math.SnapTo((ang.y + degrees) % 360, degrees)
+            ang.y = math.SnapTo(ang.y + degrees, degrees) % 360
 
             point:SetAngles(ang)
 
@@ -203,7 +203,7 @@ function TOOL:Reload(tool_tr)
         return true
     end
 
-    local rotation = self:GetClientNumber('rotation') + degrees
+    local rotation = math.SnapTo(self:GetClientNumber('rotation') + degrees, degrees)
 
-    self:SetClientInfo('rotation', math.SnapTo(rotation % 360, degrees))
+    self:SetClientInfo('rotation', rotation % 360)
 end
