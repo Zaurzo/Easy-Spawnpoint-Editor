@@ -1,5 +1,6 @@
 
 require('spawnpoint')
+include('spawnpoint_editor/post_entity_created.lua')
 
 local savedata = {
     path = 'spawnpoint_editor/' .. game.GetMap() .. '.json',
