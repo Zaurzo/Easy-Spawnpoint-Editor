@@ -1,0 +1,13 @@
+"UnlitGeneric"
+{
+	"$basetexture" "Editor/orange_mono"
+	"$model" 1
+
+	Proxies 
+	{
+		SpawnPointColor 
+		{
+			resultVar $color2
+		}
+	}
+}

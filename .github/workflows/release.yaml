@@ -1,0 +1,119 @@
+name: Release
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read # Allows the GitHub CLI to safely view PR titles out-of-band
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 1: Extract PR Title to determine the exact version tag
+      # If no PR title is found (direct commit), it gracefully defaults to mathieudutour's auto-patch bump
+      - name: Determine Version from PR Title
+        id: determine_version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Query the GitHub CLI engine for the PR title associated with the squashed commit
+          PR_TITLE=$(gh pr view "$GITHUB_SHA" --json title --template "{{.title}}" 2>/dev/null || echo "")
+          CLEAN_VERSION=$(echo "$PR_TITLE" | sed 's/^v//')
+
+          # If the title strictly matches a version semantic format (x.x.x), use it custom
+          if [[ "$CLEAN_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "custom_tag=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+            echo "release_type=custom" >> $GITHUB_OUTPUT
+          else
+            echo "release_type=patch" >> $GITHUB_OUTPUT
+          fi
+
+      # Step 2: Use your working marketplace plugin to push the tag smoothly via API
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: ${{ steps.determine_version.outputs.release_type == 'custom' && 'none' || 'patch' }}
+          custom_tag: ${{ steps.determine_version.outputs.custom_tag }}
+
+      # Step 3: Format Message natively using your git log extraction logic
+      - name: Format Message
+        id: message_body
+        run: |
+          VERSION="${{ steps.tag_version.outputs.new_tag }}"
+          DESC=$(git log -1 --pretty=%B | sed '1,2d')
+
+          # Fallback message if description turns up blank
+          if [ -z "$DESC" ] || [ "$DESC" = " " ]; then
+            DESC="No description provided."
+          fi
+
+          {
+            echo "formatted_msg<<EOF"
+            echo "## Version $VERSION"
+            echo "$DESC"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          # Save clean description variable out-of-band for the release action step block
+          {
+            echo "release_desc<<EOF"
+            echo "$DESC"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # Bundle everything except dotfiles, hidden folders, and markdown files
+      - name: Package Repository Files
+        id: pack_files
+        run: |
+          VERSION="${{ steps.tag_version.outputs.new_tag }}"
+
+          # 1. Isolate the repository name (e.g., "My-Awesome-Addon")
+          RAW_REPO_NAME="${{ github.event.repository.name }}"
+
+          # 2. Convert it entirely to lowercase natively in Bash
+          LOW_REPO_NAME="${RAW_REPO_NAME,,}"
+
+          # 3. Construct the clean file format name string
+          ZIP_NAME="${LOW_REPO_NAME}-${VERSION}.zip"
+          echo "Generated output asset name: $ZIP_NAME"
+
+          # 4. Save the dynamic filename to step outputs for subsequent steps
+          echo "zip_filename=$ZIP_NAME" >> $GITHUB_OUTPUT
+
+          # 5. Pack everything up recursively while filtering out dotfiles and markdown docs
+          zip -r "$ZIP_NAME" ./* -x ".*" "*/.*" "*.md" "*/*.md"
+
+      # Step 4: Fire your production GitHub Release step
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.message_body.outputs.release_desc }}
+          draft: false
+          prerelease: false
+          files: |
+            ${{ steps.pack_files.outputs.zip_filename }}
+
+      # Step 5: Execute your working Discord webhook action step block
+      - name: Notify Discord
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          username: "${{ github.actor }}"
+          avatar-url: "https://github.com/${{ github.actor }}.png"
+          content: |
+            ${{ steps.message_body.outputs.formatted_msg }}
+
+            - [${{ github.actor }}](https://github.com/${{ github.actor }}) on [${{ github.event.repository.name }}](https://github.com/${{ github.repository }})/[${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }})
