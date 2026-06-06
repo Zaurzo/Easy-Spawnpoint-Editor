@@ -78,20 +78,20 @@ function TOOL:LeftClick(tool_tr)
         local is_master = self:GetClientBool('master')
         local point = networked_spawnpoint
 
-        if SERVER then
-            point = point:GetSpawnPointParent() or point
-        end
-
         networked_spawnpoint:SetSpawnPointColor(self:GetColorVector())
         networked_spawnpoint:SetIsMasterSpawnPoint(is_master)
 
-        if is_master then
-            point:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-        else
-            point:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-        end
+        if SERVER then
+            point = point:GetSpawnPointParent() or point
 
-        spawnpoint.InvalidateCache()
+            if is_master then
+                point:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+            else
+                point:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+            end
+
+            spawnpoint.InvalidateCache()
+        end
 
         tool_tr.Entity = point
 
