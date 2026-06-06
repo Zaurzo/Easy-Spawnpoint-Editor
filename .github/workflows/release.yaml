@@ -17,16 +17,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Step 1: Extract PR Title to determine the exact version tag
-      # If no PR title is found (direct commit), it gracefully defaults to mathieudutour's auto-patch bump
+      # Step 1: Extract PR Title using the GitHub CLI based on branch history
       - name: Determine Version from PR Title
         id: determine_version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Query the GitHub CLI engine for the PR title associated with the squashed commit
-          PR_TITLE=$(gh pr view "$GITHUB_SHA" --json title --template "{{.title}}" 2>/dev/null || echo "")
+          # Query the 1 most recently closed/merged PR targeting main
+          PR_TITLE=$(gh pr list --base main --state merged --limit 1 --json title --template "{{range .}}{{.title}}{{end}}" 2>/dev/null || echo "")
           CLEAN_VERSION=$(echo "$PR_TITLE" | sed 's/^v//')
+
+          echo "Found PR Title: $PR_TITLE"
 
           # If the title strictly matches a version semantic format (x.x.x), use it custom
           if [[ "$CLEAN_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -116,4 +117,4 @@ jobs:
           content: |
             ${{ steps.message_body.outputs.formatted_msg }}
 
-            - [${{ github.actor }}](https://github.com/${{ github.actor }}) on [${{ github.event.repository.name }}](https://github.com/${{ github.repository }})/[${{ github.ref_name }}](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }})
+            - [${{ github.actor }}](<https://github.com/${{ github.actor }}>) on [${{ github.event.repository.name }}](<https://github.com/${{ github.repository }}>)/[${{ github.ref_name }}](<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}>)
