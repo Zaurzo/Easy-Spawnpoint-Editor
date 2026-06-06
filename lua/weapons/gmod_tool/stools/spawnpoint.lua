@@ -82,7 +82,13 @@ function TOOL:LeftClick(tool_tr)
         networked_spawnpoint:SetIsMasterSpawnPoint(is_master)
 
         if SERVER then
-            point = point:GetSpawnPointParent() or point
+            local parent = point:GetSpawnPointParent()
+
+            if parent then
+                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', networked_spawnpoint, false)
+
+                point = parent
+            end
 
             if is_master then
                 point:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
@@ -148,10 +154,8 @@ function TOOL:RightClick(tool_tr)
 
 	    util.Effect('entity_remove', ed, true, true)
 
-		local map_id = ent:GetSpawnPointMapID()
-
-        if map_id then
-            hook.Run('SpawnpointEditor.OnDestroyMapCreatedPoint', map_id)
+		if ent:GetSpawnPointParent() then
+		    hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', ent, true)
 
             ent:Destroy()
 
@@ -179,16 +183,19 @@ function TOOL:Reload(tool_tr)
     local ent = tr.Entity
 
     if IsValid(ent) and ent:GetClass() == 'networked_spawnpoint' then
-        local point = ent
-
         if SERVER then
-            point = point:GetSpawnPointParent() or point
+            local parent = ent:GetSpawnPointParent()
+            local point = parent or ent
+            local ang = point:GetAngles()
+
+            ang.y = math.SnapTo((ang.y + degrees) % 360, degrees)
+
+            point:SetAngles(ang)
+
+            if parent then
+                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', ent, false)
+            end
         end
-
-        local ang = point:GetAngles()
-        ang.y = math.SnapTo((ang.y + degrees) % 360, degrees)
-
-        point:SetAngles(ang)
 
         tool_tr.HitNormal = tr.HitNormal
         tool_tr.HitPos = tr.HitPos

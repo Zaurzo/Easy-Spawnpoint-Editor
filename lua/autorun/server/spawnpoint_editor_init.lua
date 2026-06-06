@@ -79,18 +79,6 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
     local class = ent:GetClass()
     if not spawnpoint.IsSpawnPointClass(class) or class == 'networked_spawnpoint' then return end
 
-    local data = savedata:GetChangeData(ent)
-
-    if data and not data.removed then
-        if data.master then
-            ent:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-        else
-            ent:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-        end
-
-        ent:SetAngles(data.ang)
-    end
-
     -- Default spawnpoints are not networked to the client, so we have to create
     -- our own visual representations of them
     local networked_spawnpoint = ents.Create('networked_spawnpoint')
@@ -103,18 +91,36 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
     networked_spawnpoint:Spawn()
     networked_spawnpoint:SetSpawnPointParent(ent)
 
-    if data then
-        if data.removed then
-            networked_spawnpoint:Destroy()
-        else
-            networked_spawnpoint:SetSpawnPointColor(data.color)
-        end
+    local data = savedata:GetChangeData(ent)
+    if not data then return end
+
+    if data.removed then
+        networked_spawnpoint:Destroy()
+        return
     end
+
+    if data.master then
+        ent:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+    else
+        ent:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+    end
+
+    print(data.ang, data.color)
+
+    ent:SetAngles(data.ang)
+
+    networked_spawnpoint:SetIsMasterSpawnPoint(data.master)
+    networked_spawnpoint:SetSpawnPointColor(data.color)
 end)
 
 -- Internal hook
-hook.Add('SpawnpointEditor.OnDestroyMapCreatedPoint', 'SpawnpointEditor', function(map_id)
-    points.changed[map_id] = { removed = true }
+hook.Add('SpawnpointEditor.OnMapCreatedPointChanged', 'SpawnpointEditor', function(point, removed)
+    points.changed[ point:GetSpawnPointMapID() ] = {
+        removed = removed,
+        ang = point:GetAngles(),
+        color = point:GetSpawnPointColor(),
+        master = point:GetIsMasterSpawnPoint()
+    }
 end)
 
 hook.Add('ShutDown', 'SpawnpointEditor.Save', function()
