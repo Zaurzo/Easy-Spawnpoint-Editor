@@ -25,7 +25,6 @@ function ENT:SetupDataTables()
     self:NetworkVar('Vector', 0, 'SpawnPointColor')
     self:NetworkVar('String', 1, 'SpawnPointClassName')
     self:NetworkVar('Bool', 2, 'IsMasterSpawnPoint')
-    self:NetworkVar('Bool', 3, 'SetInvisible')
 
     if SERVER then
         self:SetSpawnPointColor(Vector(0, 1, 0))
