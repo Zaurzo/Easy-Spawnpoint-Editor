@@ -1,2 +1,4 @@
-# spawnpoint-editor-stool
-A tool for Garry's Mod that allows you to edit the map spawn points.
+# Easy Spawnpoint Editor
+A sandbox tool for Garry's Mod that allows you to add, change, or remove spawnpoints on the map.
+
+[Workshop Page](https://steamcommunity.com/sharedfiles/filedetails/?id=3739856301)
