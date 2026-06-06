@@ -1,12 +1,12 @@
 
 -- My own implementation of the PostEntityCreated hook
--- Please add this, Rubat: https://github.com/Facepunch/garrysmod-requests/issues/2506
+-- https://github.com/Facepunch/garrysmod-requests/issues/2506
 
-local queue = util.Stack()
+local stack = util.Stack()
 
 local function call_hook()
-    while queue:Size() > 0 do
-        local ent = queue:Pop()
+    while stack:Size() > 0 do
+        local ent = stack:Pop()
 
         if ent:IsValid() then
             hook.Run('SpawnpointEditor.PostEntityCreated', ent)
@@ -15,7 +15,7 @@ local function call_hook()
 end
 
 hook.Add('OnEntityCreated', 'SpawnpointEditor.PostEntityCreated', function(ent)
-    queue:Push(ent)
+    stack:Push(ent)
 
     timer.Create('SpawnpointEditor.PostEntityCreated', 0, 1, call_hook)
 end)

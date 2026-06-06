@@ -7,7 +7,7 @@ ENT.Type = 'anim'
 function ENT:Initialize()
     self:SetModel('models/editor/playerstart.mdl')
     self:SetSubMaterial(0, 'editor/orange_mono')
-    self:EnableCustomCollisions(true)
+    self:EnableCustomCollisions()
     self:DrawShadow(false)
     self:SetSolid(SOLID_BBOX)
 
@@ -25,6 +25,7 @@ function ENT:SetupDataTables()
     self:NetworkVar('Vector', 0, 'SpawnPointColor')
     self:NetworkVar('String', 1, 'SpawnPointClassName')
     self:NetworkVar('Bool', 2, 'IsMasterSpawnPoint')
+    self:NetworkVar('Bool', 3, 'SetInvisible')
 
     if SERVER then
         self:SetSpawnPointColor(Vector(0, 1, 0))
@@ -42,20 +43,23 @@ function ENT:TestCollision(startpos, delta, isbox, extends, mask)
 end
 
 if SERVER then
-    local SF_MASTER_SPAWNPOINT = 1
+    function ENT:SetSpawnPointParent(point)
+        self.StoredAngle = point:GetAngles()
+        self.StoredMaster = point:HasSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
 
-    function ENT:SetSpawnPointParent(spawnpoint)
-        self:SetPos(spawnpoint:GetPos())
-        self:SetAngles(spawnpoint:GetAngles())
-        self:SetSpawnPointClassName(spawnpoint:GetClass())
-        self:SetParent(spawnpoint)
-        self:DeleteOnRemove(spawnpoint)
+        self:SetPos(point:GetPos())
+        self:SetAngles(point:GetAngles())
+        self:SetSpawnPointClassName(point:GetClass())
+        self:SetParent(point)
+        self:DeleteOnRemove(point)
 
-        if spawnpoint:HasSpawnFlags(SF_MASTER_SPAWNPOINT) then
+        if self.StoredMaster then
             self:SetIsMasterSpawnPoint(true)
         end
-        
-        self.SpawnPointParent = spawnpoint
+
+        self.SpawnPointParent = point
+
+        spawnpoint.SetUnsuitable(self, true)
     end
 
     function ENT:GetSpawnPointParent()
@@ -63,10 +67,10 @@ if SERVER then
     end
 
     function ENT:GetSpawnPointMapID()
-        local spawnpoint = self.SpawnPointParent
-        if not spawnpoint then return end
+        local point = self.SpawnPointParent
+        if not point then return end
 
-        local creation_id = spawnpoint:MapCreationID()
+        local creation_id = point:MapCreationID()
 
         if creation_id ~= -1 then
             return creation_id
@@ -75,13 +79,48 @@ if SERVER then
         return nil
     end
 
+    function ENT:SetNoCollide(state)
+        if state then
+            self:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+        else
+            self:SetCollisionGroup(COLLISION_GROUP_NONE)
+        end
+    end
+
+    function ENT:Destroy()
+        local parent = self.SpawnPointParent
+
+        if parent then
+            -- Hide and block the map created spawnpoint
+            spawnpoint.SetUnsuitable(parent, true)
+
+            self:SetNoDraw(true)
+            self:SetNoCollide(true)
+        else
+            self:Remove()
+        end
+
+        spawnpoint.InvalidateCache()
+    end
+
     function ENT:Think()
         self:NextThink(CurTime())
+
         return true
     end
 end
 
 if CLIENT then
+    matproxy.Add {
+        name = 'SpawnPointColor',
+
+        bind = function(self, mat, ent)
+            if ent.GetSpawnPointColor then
+                mat:SetVector('$color2', ent:GetSpawnPointColor())
+            end
+        end
+    }
+
     function ENT:Think()
         self:NextThink(CurTime())
 
@@ -102,7 +141,7 @@ if CLIENT then
 
         local index = self:EntIndex()
 
-        if tool:GetClientNumber('index') == index then
+        if index == tool:GetClientNumber('index') then
             local tip = self:GetSpawnPointClassName()
 
             if self:GetIsMasterSpawnPoint() then

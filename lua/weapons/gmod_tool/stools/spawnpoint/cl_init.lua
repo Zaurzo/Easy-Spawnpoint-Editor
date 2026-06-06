@@ -1,57 +1,26 @@
 
-local ghost_spawnpoint
+TOOL.SpawnPointIndex = 0
 
+local looking_at_spawnpoint
+
+function TOOL:Think()
+    local ent = self:GetTrace().Entity
+    looking_at_spawnpoint = IsValid(ent) and ent:GetClass() == 'networked_spawnpoint'
+
+    self:SetClientInfo('index', looking_at_spawnpoint and ent:EntIndex() or 0)
+end
+
+local ghost_spawnpoint
 local render_settings = {
     model = 'models/editor/playerstart.mdl'
 }
 
-local proxy = {
-    name = 'SpawnPointColor'
-}
-
-function proxy:init(mat, values)
-    self.ResultTo = values.resultvar
-end
-
-function proxy:bind(mat, ent)
-    if ent.GetSpawnPointColor then
-        mat:SetVector(self.ResultTo, ent:GetSpawnPointColor())
-    end
-end
-
-matproxy.Add(proxy)
-
-function TOOL:SetClientNumber(property, value)
-    if self.ClientConVars[property] then
-		self.ClientConVars[property]:SetFloat(value)
-	end
-end
-
-local current_spawnpoint
-
 function TOOL:DrawHUD()
-    local tr = self:GetTrace()
-    local ent = tr.Entity
-
-    if IsValid(ent) and ent:GetClass() == 'networked_spawnpoint' then
-        if current_spawnpoint ~= ent then
-            current_spawnpoint = ent
-
-            self:SetClientNumber('index', ent:EntIndex())
-        end
-
-        return
-    end
-    
-    if current_spawnpoint then
-        current_spawnpoint = nil
-
-        self:SetClientNumber('index', -1)
-    end
+    if looking_at_spawnpoint then return end
 
     if not ghost_spawnpoint or not ghost_spawnpoint:IsValid() then
         ghost_spawnpoint = ClientsideModel(render_settings.model)
-        
+
         ghost_spawnpoint:SetSubMaterial(0, 'editor/orange_mono')
         ghost_spawnpoint:SetNoDraw(true)
 
@@ -60,7 +29,7 @@ function TOOL:DrawHUD()
         end
     end
 
-    render_settings.pos = tr.HitPos
+    render_settings.pos = self:GetTrace().HitPos
     render_settings.angle = self:GetAngle()
     ghost_spawnpoint.color = self:GetColorVector()
 
@@ -84,9 +53,9 @@ function TOOL.BuildCPanel(panel)
     panel:CheckBox('#tool.spawnpoint.master', 'spawnpoint_master')
 
     panel:ColorPicker(
-        '#tool.colour.color', 
-        'spawnpoint_r', 
-        'spawnpoint_g', 
+        '#tool.colour.color',
+        'spawnpoint_r',
+        'spawnpoint_g',
         'spawnpoint_b'
     )
 
