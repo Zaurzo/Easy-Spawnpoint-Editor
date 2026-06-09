@@ -68,24 +68,24 @@ end
 
 function TOOL:LeftClick(tool_tr)
     local tr = self:GetTrace()
-    local networked_spawnpoint = tr.Entity
+    local tr_ent = tr.Entity
 
     tool_tr.HitNormal = tr.HitNormal
     tool_tr.HitPos = tr.HitPos
 
     -- Apply settings to spawnpoint on crosshair
-    if IsValid(networked_spawnpoint) then
+    if IsValid(tr_ent) and tr_ent:GetClass() == 'networked_spawnpoint' then
         local is_master = self:GetClientBool('master')
-        local point = networked_spawnpoint
+        local point = tr_ent
 
-        networked_spawnpoint:SetSpawnPointColor(self:GetColorVector())
-        networked_spawnpoint:SetIsMasterSpawnPoint(is_master)
+        tr_ent:SetSpawnPointColor(self:GetColorVector())
+        tr_ent:SetIsMasterSpawnPoint(is_master)
 
         if SERVER then
             local parent = point:GetSpawnPointParent()
 
             if parent then
-                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', networked_spawnpoint, false)
+                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', tr_ent, false)
 
                 point = parent
             end
@@ -105,7 +105,7 @@ function TOOL:LeftClick(tool_tr)
     end
 
     if SERVER then
-        networked_spawnpoint = ents.Create('networked_spawnpoint')
+        local networked_spawnpoint = ents.Create('networked_spawnpoint')
 
         if not networked_spawnpoint:IsValid() then
             error('could not create networked spawnpoint')
