@@ -50,7 +50,9 @@ function TOOL.BuildCPanel(panel)
 
     panel:NumSlider('#tool.spawnpoint.rotate_degrees', 'spawnpoint_rotate_degrees', 0, 360)
     panel:NumSlider('#tool.spawnpoint.rotation', 'spawnpoint_rotation', 0, 360)
+
     panel:CheckBox('#tool.spawnpoint.master', 'spawnpoint_master')
+    panel:Help('#tool.spawnpoint.master_desc')
 
     panel:ColorPicker(
         '#tool.colour.color',
