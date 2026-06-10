@@ -35,7 +35,7 @@ function ENT:Think()
         local tip = self:GetSpawnPointClassName()
 
         if self:GetIsMasterSpawnPoint() then
-            tip = tip .. ' (Master)'
+            tip = string.format('%s (%s)', tip, language.GetPhrase('spawnpoint.master'))
         end
 
         local offset = self:OBBCenter()
