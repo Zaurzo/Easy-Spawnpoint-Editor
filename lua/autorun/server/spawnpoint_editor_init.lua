@@ -51,11 +51,7 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
         return
     end
 
-    if data.master then
-        ent:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-    else
-        ent:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-    end
+    spawnpoint.SetMaster(ent, data.master)
 
     ent:SetAngles(data.ang)
 
@@ -109,15 +105,10 @@ concommand.Add('spawnpoint_restore_default', function(ply)
             point:SetAngles(point.StoredAngle)
             point:SetIsMasterSpawnPoint(point.StoredMaster)
 
-            if point.StoredMaster then
-                parent:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-            else
-                parent:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-            end
+            spawnpoint.SetMaster(parent, point.StoredMaster)
+            spawnpoint.SetUnsuitable(parent, false)
 
             point.IsDestroyed = false
-
-            spawnpoint.SetUnsuitable(parent, false)
         end
     end
 

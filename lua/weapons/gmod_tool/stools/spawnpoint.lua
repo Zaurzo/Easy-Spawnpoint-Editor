@@ -83,12 +83,7 @@ function TOOL:LeftClick(tool_tr)
 
         if SERVER then
             point = point:GetSpawnPointParent() or point
-
-            if is_master then
-                point:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-            else
-                point:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-            end
+            spawnpoint.SetMaster(point, is_master)
 
             hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
         end
@@ -114,7 +109,8 @@ function TOOL:LeftClick(tool_tr)
 
         if self:GetClientBool('master') then
             networked_spawnpoint:SetIsMasterSpawnPoint(true)
-            networked_spawnpoint:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+
+            spawnpoint.SetMaster(spawnpoint, true)
         end
 
         undo.Create('info_player_start')

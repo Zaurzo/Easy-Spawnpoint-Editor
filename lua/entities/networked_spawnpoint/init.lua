@@ -11,7 +11,7 @@ end
 
 function ENT:SetSpawnPointParent(point)
     self.StoredAngle = point:GetAngles()
-    self.StoredMaster = point:HasSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+    self.StoredMaster = spawnpoint.IsMaster(point)
 
     self:SetPos(point:GetPos())
     self:SetAngles(point:GetAngles())
@@ -55,7 +55,7 @@ end
 
 function ENT:Destroy()
     self.IsDestroyed = true
-    
+
     if self.SpawnPointParent then
         self:SetNoDraw(true)
         self:SetNoCollide(true)

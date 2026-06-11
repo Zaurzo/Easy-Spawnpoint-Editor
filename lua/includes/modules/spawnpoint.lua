@@ -3,7 +3,7 @@ spawnpoint = {}
 
 -- Spawnflag enum
 -- The spawnpoint selector will always choose the first spawnpoint with this flag
-spawnpoint.SF_MASTER_SPAWNPOINT = 1
+local SF_MASTER_SPAWNPOINT = 1
 
 local class_registry = {}
 local unsuitable_points = {}
@@ -100,15 +100,29 @@ local function invalidate_cache()
 end
 
 function spawnpoint.SetUnsuitable(point, value)
-    if isentity(point) and entity_classes[point:GetClass()] then
-        unsuitable_points[point] = value or nil
+    if not entity_classes[point:GetClass()] then return end
 
-        invalidate_cache()
+    unsuitable_points[point] = value or nil
+
+    invalidate_cache()
+end
+
+function spawnpoint.SetMaster(point, status)
+    if not entity_classes[point:GetClass()] then return end
+
+    if status then
+        point:AddSpawnFlags(SF_MASTER_SPAWNPOINT)
+    else
+        point:RemoveSpawnFlags(SF_MASTER_SPAWNPOINT)
     end
 end
 
 function spawnpoint.IsUnsuitable(point)
     return unsuitable_points[point] or false
+end
+
+function spawnpoint.IsMaster(point)
+    return entity_classes[point:GetClass()] and point:HasSpawnFlags(SF_MASTER_SPAWNPOINT)
 end
 
 spawnpoint.InvalidateCache = invalidate_cache
