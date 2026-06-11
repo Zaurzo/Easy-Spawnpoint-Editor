@@ -54,14 +54,13 @@ function ENT:SetNoCollide(state)
 end
 
 function ENT:Destroy()
-    local parent = self.SpawnPointParent
-
-    if parent then
-        -- Hide and block the map created spawnpoint
-        spawnpoint.SetUnsuitable(parent, true)
-
+    self.IsDestroyed = true
+    
+    if self.SpawnPointParent then
         self:SetNoDraw(true)
         self:SetNoCollide(true)
+
+        spawnpoint.SetUnsuitable(self.SpawnPointParent, true)
     else
         self:Remove()
     end

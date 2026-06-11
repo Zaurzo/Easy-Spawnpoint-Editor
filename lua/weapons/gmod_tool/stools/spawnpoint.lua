@@ -82,13 +82,7 @@ function TOOL:LeftClick(tool_tr)
         tr_ent:SetIsMasterSpawnPoint(is_master)
 
         if SERVER then
-            local parent = point:GetSpawnPointParent()
-
-            if parent then
-                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', tr_ent, false)
-
-                point = parent
-            end
+            point = point:GetSpawnPointParent() or point
 
             if is_master then
                 point:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
@@ -96,7 +90,7 @@ function TOOL:LeftClick(tool_tr)
                 point:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
             end
 
-            spawnpoint.InvalidateCache()
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
         end
 
         tool_tr.Entity = point
@@ -128,7 +122,7 @@ function TOOL:LeftClick(tool_tr)
             undo.SetPlayer(self:GetOwner())
         undo.Finish()
 
-        spawnpoint.InvalidateCache()
+        hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
     end
 
     return true
@@ -155,9 +149,9 @@ function TOOL:RightClick(tool_tr)
 	    util.Effect('entity_remove', ed, true, true)
 
 		if ent:GetSpawnPointParent() then
-		    hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', ent, true)
-
             ent:Destroy()
+
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
 
             return true
         end
@@ -167,9 +161,11 @@ function TOOL:RightClick(tool_tr)
 
         -- Wait for the remove effect
         timer.Simple(0.15, function()
-            if ent:IsValid() then
-                ent:Destroy()
-            end
+            if not ent:IsValid() then return end
+
+            ent:Destroy()
+
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
         end)
     end
 
@@ -184,17 +180,14 @@ function TOOL:Reload(tool_tr)
 
     if IsValid(ent) and ent:GetClass() == 'networked_spawnpoint' then
         if SERVER then
-            local parent = ent:GetSpawnPointParent()
-            local point = parent or ent
+            local point = ent:GetSpawnPointParent() or ent
             local ang = point:GetAngles()
 
             ang.y = math.SnapTo(ang.y + degrees, degrees) % 360
 
             point:SetAngles(ang)
 
-            if parent then
-                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', ent, false)
-            end
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
         end
 
         tool_tr.HitNormal = tr.HitNormal

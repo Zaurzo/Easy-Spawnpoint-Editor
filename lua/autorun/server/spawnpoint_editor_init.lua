@@ -2,56 +2,8 @@
 require('spawnpoint')
 include('spawnpoint_editor/post_entity_created.lua')
 
-local savedata = {
-    path = 'spawnpoint_editor/' .. game.GetMap() .. '.json',
-
-    points = {
-        changed = { -- Change data of map-created spawnpoints
-        --    [1] = {
-        --        ang = Angle(),
-        --        color = Vector(),
-        --        removed = false,
-        --        master = false
-        --    }
-        },
-        created = { -- Data of player-created spawnpoints
-        --    [1] = {
-        --        pos = Vector(),
-        --        ang = Angle(),
-        --        color = Vector(),
-        --        master = false
-        --    }
-        }
-    },
-
-    Load = function(self)
-        local json = file.Read(self.path, 'DATA')
-
-        if json then
-            self.points = util.JSONToTable(json)
-        end
-
-        return self.points
-    end,
-
-    Clear = function(self)
-        self.points.changed = {}
-        self.points.created = {}
-    end,
-
-    Save = function(self)
-        file.CreateDir('spawnpoint_editor')
-        file.Write(self.path, util.TableToJSON(self.points, true))
-    end,
-
-    GetChangeData = function(self, ent)
-        local id = ent:MapCreationID()
-
-        return id ~= -1 and self.points.changed[id]
-    end
-}
-
-local points = savedata:Load()
+local save_data = include('spawnpoint_editor/save_data.lua')
+local points = save_data:Load()
 
 -- Register our custom spawnpoint class to be chosen by the
 -- default spawnpoint selector
@@ -91,7 +43,7 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
     networked_spawnpoint:Spawn()
     networked_spawnpoint:SetSpawnPointParent(ent)
 
-    local data = savedata:GetChangeData(ent)
+    local data = save_data:GetChangeData(ent)
     if not data then return end
 
     if data.removed then
@@ -112,41 +64,8 @@ hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)
 end)
 
 -- Internal hook
-hook.Add('SpawnpointEditor.OnMapCreatedPointChanged', 'SpawnpointEditor', function(point, removed)
-    points.changed[ point:GetSpawnPointMapID() ] = {
-        removed = removed,
-        ang = point:GetAngles(),
-        color = point:GetSpawnPointColor(),
-        master = point:GetIsMasterSpawnPoint()
-    }
-end)
-
-hook.Add('ShutDown', 'SpawnpointEditor.Save', function()
-    savedata:Clear()
-
-    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
-        local data = {
-            ang = point:GetAngles(),
-            color = point:GetSpawnPointColor(),
-            master = point:GetIsMasterSpawnPoint()
-        }
-
-        local id = point:GetSpawnPointMapID()
-
-        if id then
-            if spawnpoint.IsUnsuitable(point:GetSpawnPointParent()) then
-                data.removed = true
-            end
-
-            points.changed[id] = data
-        else
-            data.pos = point:GetPos()
-
-            table.insert(points.created, data)
-        end
-    end
-
-    savedata:Save()
+hook.Add('SpawnpointEditor.OnSpawnpointsChanged', 'SpawnpointEditor', function()
+    save_data:Save()
 end)
 
 -- Commands
@@ -157,6 +76,8 @@ local function destroy_all_player_created()
             point:Destroy()
         end
     end
+
+    save_data:Save()
 end
 
 concommand.Add('spawnpoint_destroy_player_created', function(ply)
@@ -171,6 +92,8 @@ concommand.Add('spawnpoint_destroy_map_created', function(ply)
             point:Destroy()
         end
     end
+
+    save_data:Save()
 end)
 
 concommand.Add('spawnpoint_restore_default', function(ply)
@@ -192,9 +115,11 @@ concommand.Add('spawnpoint_restore_default', function(ply)
                 parent:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
             end
 
+            point.IsDestroyed = false
+
             spawnpoint.SetUnsuitable(parent, false)
         end
     end
 
-    points.changed = {}
+    save_data:Save()
 end)
