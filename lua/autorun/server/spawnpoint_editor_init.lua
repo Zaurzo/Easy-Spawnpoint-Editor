@@ -100,9 +100,9 @@ concommand.Add('spawnpoint_restore_default', function(ply)
 
         if parent then
             point:SetNoDraw(false)
+            point:SetAngles(point.StoredAngle)
             point:SetNoCollide(false)
             point:SetSpawnPointColor(Vector(0, 1, 0))
-            point:SetAngles(point.StoredAngle)
             point:SetIsMasterSpawnPoint(point.StoredMaster)
 
             spawnpoint.SetMaster(parent, point.StoredMaster)

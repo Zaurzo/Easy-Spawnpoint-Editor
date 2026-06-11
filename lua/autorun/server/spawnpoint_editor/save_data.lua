@@ -40,10 +40,7 @@ function save_data:Save()
         local id = point:GetSpawnPointMapID()
 
         if id then
-            if point.IsDestroyed then
-                data.removed = true
-            end
-
+            data.removed = point.IsDestroyed
             points.changed[id] = data
         elseif not point.IsDestroyed then
             data.pos = point:GetPos()
@@ -52,7 +49,7 @@ function save_data:Save()
         end
     end
 
-    file.Write(self.path, util.TableToJSON(points, true))
+    file.Write(self.path, util.TableToJSON(points))
 
     self.loaded = true
 end
