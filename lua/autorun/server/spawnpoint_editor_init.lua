@@ -3,18 +3,34 @@ require('spawnpoint')
 include('spawnpoint_editor/post_entity_created.lua')
 
 local save_data = include('spawnpoint_editor/save_data.lua')
-local points = save_data:Load()
+local MAX_SPAWNPOINT_COUNT = 512
+
+spawnpoint.editor = {}
+spawnpoint.editor.MAX_COUNT = MAX_SPAWNPOINT_COUNT
 
 -- Register our custom spawnpoint class to be chosen by the
 -- default spawnpoint selector
 spawnpoint.RegisterClass('networked_spawnpoint')
 
-hook.Add('InitPostEntity', 'SpawnpointEditor.Initialize', function()
+local too_many_err = 'not creating spawnpoint - too many! (%d current, %d max)'
+
+function spawnpoint.editor.Load(points)
+    local count = spawnpoint.GetCount()
+
     for k, data in ipairs(points.created) do
+        count = count + 1
+
+        if count >= MAX_SPAWNPOINT_COUNT then
+            local err = too_many_err:format(count, MAX_SPAWNPOINT_COUNT)
+            ErrorNoHaltWithStack(err)
+
+            break
+        end
+
         local networked_spawnpoint = ents.Create('networked_spawnpoint')
 
         if not networked_spawnpoint:IsValid() then
-            ErrorNoHaltWithStack('could not create networked_spawnpoint')
+            ErrorNoHaltWithStack('could not create spawnpoint')
             break
         end
 
@@ -25,6 +41,10 @@ hook.Add('InitPostEntity', 'SpawnpointEditor.Initialize', function()
         networked_spawnpoint:SetSpawnPointColor(data.color)
         networked_spawnpoint:SetIsMasterSpawnPoint(data.master)
     end
+end
+
+hook.Add('InitPostEntity', 'SpawnpointEditor.Initialize', function()
+    spawnpoint.editor.Load(save_data:Load())
 end)
 
 hook.Add('SpawnpointEditor.PostEntityCreated', 'SetupSpawnPoint', function(ent)

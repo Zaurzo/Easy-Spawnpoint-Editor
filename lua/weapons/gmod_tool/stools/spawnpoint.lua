@@ -1,7 +1,7 @@
 
 AddCSLuaFile('spawnpoint/cl_init.lua')
 
-local MAX_SPAWNPOINT_COUNT = 255
+local MAX_SPAWNPOINT_COUNT = spawnpoint.editor.MAX_COUNT
 
 TOOL.Category = 'Zaurzo'
 TOOL.Name = '#tool.spawnpoint.name'
