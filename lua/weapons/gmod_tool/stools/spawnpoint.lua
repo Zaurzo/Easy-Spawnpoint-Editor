@@ -1,6 +1,8 @@
 
 AddCSLuaFile('spawnpoint/cl_init.lua')
 
+local MAX_SPAWNPOINT_COUNT = 255
+
 TOOL.Category = 'Zaurzo'
 TOOL.Name = '#tool.spawnpoint.name'
 
@@ -94,6 +96,11 @@ function TOOL:LeftClick(tool_tr)
     end
 
     if SERVER then
+        if spawnpoint.GetCount() >= MAX_SPAWNPOINT_COUNT then
+            self:GetOwner():LimitHit('spawnpoint')
+            return false
+        end
+
         local networked_spawnpoint = ents.Create('networked_spawnpoint')
 
         if not networked_spawnpoint:IsValid() then
@@ -104,13 +111,13 @@ function TOOL:LeftClick(tool_tr)
         networked_spawnpoint:SetAngles(self:GetAngle())
         networked_spawnpoint:SetSpawnEffect(true)
         networked_spawnpoint:Spawn()
-        networked_spawnpoint:SetSpawnPointColor(self:GetColorVector())
         networked_spawnpoint:AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES)
+        networked_spawnpoint:SetSpawnPointColor(self:GetColorVector())
 
         if self:GetClientBool('master') then
             networked_spawnpoint:SetIsMasterSpawnPoint(true)
 
-            spawnpoint.SetMaster(spawnpoint, true)
+            spawnpoint.SetMaster(networked_spawnpoint, true)
         end
 
         undo.Create('info_player_start')
