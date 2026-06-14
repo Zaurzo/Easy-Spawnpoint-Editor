@@ -97,7 +97,7 @@ end)
 
 -- Commands
 
-concommand.Add('spawnpoint_destroy_player_created', function(ply)
+concommand.Add('spawnpoint_remove_player_created', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
     for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
@@ -109,7 +109,7 @@ concommand.Add('spawnpoint_destroy_player_created', function(ply)
     save_data:Save()
 end)
 
-concommand.Add('spawnpoint_destroy_map_created', function(ply)
+concommand.Add('spawnpoint_remove_map_created', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
     for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
