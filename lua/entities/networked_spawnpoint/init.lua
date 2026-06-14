@@ -4,9 +4,8 @@ AddCSLuaFile('cl_init.lua')
 
 include('shared.lua')
 
-function ENT:Think()
-    self:NextThink(CurTime())
-    return true
+function ENT:UpdateTransmitState()
+    return TRANSMIT_ALWAYS
 end
 
 function ENT:SetSpawnPointParent(point)

@@ -32,10 +32,7 @@ end
 function TOOL:SetClientInfo(property, value)
     if SERVER then
         self:GetOwner():ConCommand('spawnpoint_' .. property .. ' ' .. tostring(value))
-        return
-    end
-
-   	if self.ClientConVars[property] then
+   	elseif self.ClientConVars[property] then
 		self.ClientConVars[property]:SetString(value)
     end
 end
@@ -67,6 +64,8 @@ function TOOL:GetTrace()
 end
 
 function TOOL:LeftClick(tool_tr)
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+
     local tr = self:GetTrace()
     local tr_ent = tr.Entity
 
@@ -129,6 +128,8 @@ function TOOL:LeftClick(tool_tr)
 end
 
 function TOOL:RightClick(tool_tr)
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+
     local tr = self:GetTrace()
     local ent = tr.Entity
 
@@ -173,6 +174,8 @@ function TOOL:RightClick(tool_tr)
 end
 
 function TOOL:Reload(tool_tr)
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+    
     local degrees = self:GetClientNumber('rotate_degrees')
 
     local tr = self:GetTrace()

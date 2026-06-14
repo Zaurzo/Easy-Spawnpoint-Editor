@@ -12,22 +12,16 @@ matproxy.Add {
 }
 
 function ENT:Think()
-    self:NextThink(CurTime())
-
     self.CanDraw = false
 
     local ply = LocalPlayer()
-    local wep = ply:GetActiveWeapon()
+    if not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
-    if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then
-        return true
-    end
+    local wep = ply:GetActiveWeapon()
+    if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then return end
 
     local tool = ply:GetTool()
-
-    if not tool or tool.Mode ~= 'spawnpoint' then
-        return true
-    end
+    if not tool or tool.Mode ~= 'spawnpoint' then return end
 
     local index = self:EntIndex()
 
@@ -47,8 +41,6 @@ function ENT:Think()
     end
 
     self.CanDraw = true
-
-    return true
 end
 
 function ENT:Draw()

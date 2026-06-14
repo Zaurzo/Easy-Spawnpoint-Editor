@@ -17,6 +17,7 @@ local render_settings = {
 
 function TOOL:DrawHUD()
     if looking_at_spawnpoint then return end
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
 
     if not ghost_spawnpoint or not ghost_spawnpoint:IsValid() then
         ghost_spawnpoint = ClientsideModel(render_settings.model)
