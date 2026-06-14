@@ -1,7 +1,7 @@
 
 function TOOL:Think()
     if self:GetOperation() ~= 2 then
-        self:SetOperation(self:GetClientNumber('index') != 0 and 1 or 0)
+        self:SetOperation(self:GetClientNumber('index') ~= 0 and 1 or 0)
     end
 end
 
