@@ -13,11 +13,16 @@ TOOL.ClientConVar['rotation'] = 0
 TOOL.ClientConVar['rotate_degrees'] = 45
 
 TOOL.Information = {
+    { name = 'info', op = 2 },
 	{ name = 'left', op = 0 },
     { name = 'left_1', op = 1 },
+    { name = 'left_2', op = 2 },
 	{ name = 'right', op = 1 },
-    { name = 'reload' }
+    { name = 'reload' },
+    { name = 'use', op = 1 },
 }
+
+TOOL.SelectDistance = 512
 
 if CLIENT then
     include('spawnpoint/cl_init.lua')
@@ -25,7 +30,9 @@ end
 
 if SERVER then
     function TOOL:Think()
-        self:SetOperation(self:GetClientNumber('index') != 0 and 1 or 0)
+        if self:GetOperation() ~= 2 then
+            self:SetOperation(self:GetClientNumber('index') != 0 and 1 or 0)
+        end
     end
 end
 
@@ -56,7 +63,7 @@ function TOOL:GetTrace()
     local ply = self:GetOwner()
 
 	trace.start = ply:EyePos()
-	trace.endpos = trace.start + (ply:GetAimVector() * 512)
+	trace.endpos = trace.start + (ply:GetAimVector() * self.SelectDistance)
 	trace.filter = ply
     trace.mask = bit.bor(MASK_SOLID, CONTENTS_CURRENT_0)
 
@@ -65,10 +72,35 @@ end
 
 function TOOL:LeftClick(tool_tr)
     local tr = self:GetTrace()
-    local tr_ent = tr.Entity
 
     tool_tr.HitNormal = tr.HitNormal
     tool_tr.HitPos = tr.HitPos
+
+    local wep = self:GetWeapon()
+    local move_ent = wep:GetNWEntity('SpawnpointEditor_MoveEnt')
+
+    -- Move selected spawnpoint
+    if IsValid(move_ent) then
+        if SERVER then
+            local point = move_ent:GetSpawnPointParent() or move_ent
+
+            point:SetPos(tool_tr.HitPos)
+            point:SetAngles(self:GetAngle())
+        end
+
+        move_ent:SetNoDraw(false)
+        move_ent:SetNoCollide(false)
+
+        hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
+
+        wep:SetNWEntity('SpawnpointEditor_MoveEnt', NULL)
+
+        self:SetOperation(1)
+
+        return true
+    end
+
+    local tr_ent = tr.Entity
 
     -- Apply settings to spawnpoint on crosshair
     if IsValid(tr_ent) and tr_ent:GetClass() == 'networked_spawnpoint' then

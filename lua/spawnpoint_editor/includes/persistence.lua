@@ -49,6 +49,7 @@ local save_data = {
 
         for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
             local data = {
+                pos = point:GetPos(),
                 ang = point:GetAngles(),
                 color = point:GetSpawnPointColor(),
                 master = point:GetIsMasterSpawnPoint()
@@ -60,8 +61,6 @@ local save_data = {
                 data.removed = point.IsDestroyed
                 points.changed[id] = data
             elseif not point.IsDestroyed then
-                data.pos = point:GetPos()
-
                 table.insert(points.created, data)
             end
         end

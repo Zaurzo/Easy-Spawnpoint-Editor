@@ -34,10 +34,16 @@ function ENT:SetupDataTables()
     end
 end
 
-function ENT:TestCollision(startpos, delta, isbox, extends, mask)
-    -- I need everything to pass through this entity, but allow
-    -- client-side traces to hit it, so I check for a random
-    -- content mask
+local CONTENTS_PLAYER_USE = 100745227
 
+function ENT:TestCollision(startpos, delta, isbox, extends, mask)
+    -- Allow player +use
+    if bit.band(mask, CONTENTS_PLAYER_USE) == CONTENTS_PLAYER_USE then
+        return true
+    end
+
+    -- I need everything to pass through this entity, but allow
+    -- client-side traces to hit it, so I just use and check for 
+    -- this random contents mask.
     return bit.band(mask, CONTENTS_CURRENT_0) == CONTENTS_CURRENT_0
 end

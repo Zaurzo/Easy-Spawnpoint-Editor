@@ -2,7 +2,7 @@
 spawnpoint_editor = spawnpoint_editor or {}
 
 function spawnpoint_editor.IsAllowedToUse(ply)
-    return false
+    return ply:IsSuperAdmin()
 end
 
 if SERVER then

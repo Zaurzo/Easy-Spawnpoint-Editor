@@ -32,7 +32,14 @@ function TOOL:DrawHUD()
 
     render_settings.pos = self:GetTrace().HitPos
     render_settings.angle = self:GetAngle()
-    ghost_spawnpoint.color = self:GetColorVector()
+
+    local move_ent = self:GetWeapon():GetNWEntity('SpawnpointEditor_MoveEnt')
+
+    if IsValid(move_ent) then
+        ghost_spawnpoint.color = move_ent:GetSpawnPointColor()
+    else
+        ghost_spawnpoint.color = self:GetColorVector()
+    end
 
     cam.Start3D()
 
