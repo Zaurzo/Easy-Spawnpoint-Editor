@@ -32,7 +32,14 @@ function TOOL:DrawHUD()
 
     render_settings.pos = self:GetTrace().HitPos
     render_settings.angle = self:GetAngle()
-    ghost_spawnpoint.color = self:GetColorVector()
+
+    local move_ent = self:GetWeapon():GetNWEntity('SpawnpointEditor_MoveEnt')
+
+    if IsValid(move_ent) then
+        ghost_spawnpoint.color = move_ent:GetSpawnPointColor()
+    else
+        ghost_spawnpoint.color = self:GetColorVector()
+    end
 
     cam.Start3D()
 
@@ -63,6 +70,12 @@ function TOOL.BuildCPanel(panel)
     )
 
     panel:Button('#tool.spawnpoint.button_restore', 'spawnpoint_restore_default')
-    panel:Button('#tool.spawnpoint.button_destroy_map', 'spawnpoint_destroy_map_created')
-    panel:Button('#tool.spawnpoint.button_destroy_player', 'spawnpoint_destroy_player_created')
+    panel:Button('#tool.spawnpoint.button_remove_map', 'spawnpoint_remove_map_created')
+    panel:Button('#tool.spawnpoint.button_remove_player', 'spawnpoint_remove_player_created')
 end
+
+hook.Add('CanTool', 'SpawnpointEditor', function(ply, tr, tool_name)
+    if tool_name == 'spawnpoint' and not spawnpoint_editor.IsAllowedToUse(ply) then
+        return false
+    end
+end)

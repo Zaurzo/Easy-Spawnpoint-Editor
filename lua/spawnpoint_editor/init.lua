@@ -23,6 +23,10 @@ local function setup_visual_representation(point, data)
     if not data.removed then
         spawnpoint.SetMaster(point, data.master)
 
+        if data.pos then
+            point:SetPos(data.pos)
+        end
+
         point:SetAngles(data.ang)
 
         visual:SetIsMasterSpawnPoint(data.master)
@@ -67,8 +71,10 @@ function spawnpoint_editor.RestoreMapDefaults()
         local parent = point:GetSpawnPointParent()
 
         if parent then
+            parent:SetPos(point.StoredPosition)
+            parent:SetAngles(point.StoredAngle)
+
             point:SetNoDraw(false)
-            point:SetAngles(point.StoredAngle)
             point:SetNoCollide(false)
             point:SetSpawnPointColor(Vector(0, 1, 0))
             point:SetIsMasterSpawnPoint(point.StoredMaster)
@@ -91,7 +97,7 @@ end)
 
 -- Commands
 
-concommand.Add('spawnpoint_destroy_player_created', function(ply)
+concommand.Add('spawnpoint_remove_player_created', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
     for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
@@ -103,7 +109,7 @@ concommand.Add('spawnpoint_destroy_player_created', function(ply)
     save_data:Save()
 end)
 
-concommand.Add('spawnpoint_destroy_map_created', function(ply)
+concommand.Add('spawnpoint_remove_map_created', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
     for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
