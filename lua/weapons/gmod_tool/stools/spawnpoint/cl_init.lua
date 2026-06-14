@@ -66,3 +66,9 @@ function TOOL.BuildCPanel(panel)
     panel:Button('#tool.spawnpoint.button_destroy_map', 'spawnpoint_destroy_map_created')
     panel:Button('#tool.spawnpoint.button_destroy_player', 'spawnpoint_destroy_player_created')
 end
+
+hook.Add('CanTool', 'SpawnpointEditor', function(ply, tr, tool_name)
+    if tool_name == 'spawnpoint' and not spawnpoint_editor.IsAllowedToUse(ply) then
+        return false
+    end
+end)

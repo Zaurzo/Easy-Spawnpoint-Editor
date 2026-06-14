@@ -64,8 +64,6 @@ function TOOL:GetTrace()
 end
 
 function TOOL:LeftClick(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
-
     local tr = self:GetTrace()
     local tr_ent = tr.Entity
 
@@ -123,8 +121,6 @@ function TOOL:LeftClick(tool_tr)
 end
 
 function TOOL:RightClick(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
-
     local tr = self:GetTrace()
     local ent = tr.Entity
 
@@ -169,8 +165,6 @@ function TOOL:RightClick(tool_tr)
 end
 
 function TOOL:Reload(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
-
     local degrees = self:GetClientNumber('rotate_degrees')
 
     local tr = self:GetTrace()
@@ -197,4 +191,14 @@ function TOOL:Reload(tool_tr)
     local rotation = math.SnapTo(self:GetClientNumber('rotation') + degrees, degrees)
 
     self:SetClientInfo('rotation', rotation % 360)
+end
+
+function TOOL:Allowed()
+    if not self.AllowedCVar:GetBool() then
+        return false
+    end
+
+    local ply = self:GetOwner()
+
+    return not IsValid(ply) or spawnpoint_editor.IsAllowedToUse(ply)
 end
