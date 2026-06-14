@@ -1,0 +1,36 @@
+name: Commit Notification
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      # Extract and format the names of all commits in the push batch
+      - name: Format Commit List
+        id: format_commits
+        run: |
+          # Use jq to map over commits, extract the first line of the message, and join with newlines
+          COMMITS=$(echo '${{ toJson(github.event.commits) }}' | jq -r '.[] | .message | split("\n")[0]')
+          
+          # Write the multiline string safely into the GitHub Step Output buffer
+          {
+            echo "commit_list<<EOF"
+            echo "$COMMITS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # Execute your working Discord webhook action step block
+      - name: Notify Discord
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          username: "${{ github.actor }}"
+          avatar-url: "https://github.com/${{ github.actor }}.png"
+          content: |
+            ${{ steps.format_commits.outputs.commit_list }}
+
+            - [${{ github.actor }}](<https://github.com/${{ github.actor }}>) on [${{ github.event.repository.name }}](<https://github.com/${{ github.repository }}>)/[${{ github.ref_name }}](<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}>)
