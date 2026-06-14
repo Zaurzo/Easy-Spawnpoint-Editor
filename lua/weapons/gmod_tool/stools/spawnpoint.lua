@@ -65,8 +65,6 @@ function TOOL:GetTrace()
 end
 
 function TOOL:LeftClick(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
-
     local tr = self:GetTrace()
 
     tool_tr.HitNormal = tr.HitNormal
@@ -149,8 +147,6 @@ function TOOL:LeftClick(tool_tr)
 end
 
 function TOOL:RightClick(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
-
     local tr = self:GetTrace()
     local ent = tr.Entity
 
@@ -195,8 +191,6 @@ function TOOL:RightClick(tool_tr)
 end
 
 function TOOL:Reload(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
-
     local degrees = self:GetClientNumber('rotate_degrees')
 
     local tr = self:GetTrace()
