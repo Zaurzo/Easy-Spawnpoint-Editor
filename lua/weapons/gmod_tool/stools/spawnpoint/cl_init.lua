@@ -70,8 +70,8 @@ function TOOL.BuildCPanel(panel)
     )
 
     panel:Button('#tool.spawnpoint.button_restore', 'spawnpoint_restore_default')
-    panel:Button('#tool.spawnpoint.button_destroy_map', 'spawnpoint_destroy_map_created')
-    panel:Button('#tool.spawnpoint.button_destroy_player', 'spawnpoint_destroy_player_created')
+    panel:Button('#tool.spawnpoint.button_remove_map', 'spawnpoint_destroy_map_created')
+    panel:Button('#tool.spawnpoint.button_remove_player', 'spawnpoint_destroy_player_created')
 end
 
 hook.Add('CanTool', 'SpawnpointEditor', function(ply, tr, tool_name)
