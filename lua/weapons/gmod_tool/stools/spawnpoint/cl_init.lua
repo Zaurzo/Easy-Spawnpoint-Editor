@@ -17,6 +17,7 @@ local render_settings = {
 
 function TOOL:DrawHUD()
     if looking_at_spawnpoint then return end
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
 
     if not ghost_spawnpoint or not ghost_spawnpoint:IsValid() then
         ghost_spawnpoint = ClientsideModel(render_settings.model)
@@ -50,7 +51,9 @@ function TOOL.BuildCPanel(panel)
 
     panel:NumSlider('#tool.spawnpoint.rotate_degrees', 'spawnpoint_rotate_degrees', 0, 360)
     panel:NumSlider('#tool.spawnpoint.rotation', 'spawnpoint_rotation', 0, 360)
+
     panel:CheckBox('#tool.spawnpoint.master', 'spawnpoint_master')
+    panel:Help('#tool.spawnpoint.master_desc')
 
     panel:ColorPicker(
         '#tool.colour.color',

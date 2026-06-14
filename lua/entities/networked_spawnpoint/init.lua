@@ -4,14 +4,13 @@ AddCSLuaFile('cl_init.lua')
 
 include('shared.lua')
 
-function ENT:Think()
-    self:NextThink(CurTime())
-    return true
+function ENT:UpdateTransmitState()
+    return TRANSMIT_ALWAYS
 end
 
 function ENT:SetSpawnPointParent(point)
     self.StoredAngle = point:GetAngles()
-    self.StoredMaster = point:HasSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+    self.StoredMaster = spawnpoint.IsMaster(point)
 
     self:SetPos(point:GetPos())
     self:SetAngles(point:GetAngles())
@@ -54,14 +53,13 @@ function ENT:SetNoCollide(state)
 end
 
 function ENT:Destroy()
-    local parent = self.SpawnPointParent
+    self.IsDestroyed = true
 
-    if parent then
-        -- Hide and block the map created spawnpoint
-        spawnpoint.SetUnsuitable(parent, true)
-
+    if self.SpawnPointParent then
         self:SetNoDraw(true)
         self:SetNoCollide(true)
+
+        spawnpoint.SetUnsuitable(self.SpawnPointParent, true)
     else
         self:Remove()
     end

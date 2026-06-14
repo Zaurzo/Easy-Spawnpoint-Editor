@@ -32,10 +32,7 @@ end
 function TOOL:SetClientInfo(property, value)
     if SERVER then
         self:GetOwner():ConCommand('spawnpoint_' .. property .. ' ' .. tostring(value))
-        return
-    end
-
-   	if self.ClientConVars[property] then
+   	elseif self.ClientConVars[property] then
 		self.ClientConVars[property]:SetString(value)
     end
 end
@@ -67,36 +64,27 @@ function TOOL:GetTrace()
 end
 
 function TOOL:LeftClick(tool_tr)
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+
     local tr = self:GetTrace()
-    local networked_spawnpoint = tr.Entity
+    local tr_ent = tr.Entity
 
     tool_tr.HitNormal = tr.HitNormal
     tool_tr.HitPos = tr.HitPos
 
     -- Apply settings to spawnpoint on crosshair
-    if IsValid(networked_spawnpoint) then
+    if IsValid(tr_ent) and tr_ent:GetClass() == 'networked_spawnpoint' then
         local is_master = self:GetClientBool('master')
-        local point = networked_spawnpoint
+        local point = tr_ent
 
-        networked_spawnpoint:SetSpawnPointColor(self:GetColorVector())
-        networked_spawnpoint:SetIsMasterSpawnPoint(is_master)
+        tr_ent:SetSpawnPointColor(self:GetColorVector())
+        tr_ent:SetIsMasterSpawnPoint(is_master)
 
         if SERVER then
-            local parent = point:GetSpawnPointParent()
+            point = point:GetSpawnPointParent() or point
+            spawnpoint.SetMaster(point, is_master)
 
-            if parent then
-                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', networked_spawnpoint, false)
-
-                point = parent
-            end
-
-            if is_master then
-                point:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-            else
-                point:RemoveSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
-            end
-
-            spawnpoint.InvalidateCache()
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
         end
 
         tool_tr.Entity = point
@@ -105,7 +93,7 @@ function TOOL:LeftClick(tool_tr)
     end
 
     if SERVER then
-        networked_spawnpoint = ents.Create('networked_spawnpoint')
+        local networked_spawnpoint = ents.Create('networked_spawnpoint')
 
         if not networked_spawnpoint:IsValid() then
             error('could not create networked spawnpoint')
@@ -116,11 +104,11 @@ function TOOL:LeftClick(tool_tr)
         networked_spawnpoint:SetSpawnEffect(true)
         networked_spawnpoint:Spawn()
         networked_spawnpoint:SetSpawnPointColor(self:GetColorVector())
-        networked_spawnpoint:AddEFlags(EFL_KEEP_ON_RECREATE_ENTITIES)
 
         if self:GetClientBool('master') then
             networked_spawnpoint:SetIsMasterSpawnPoint(true)
-            networked_spawnpoint:AddSpawnFlags(spawnpoint.SF_MASTER_SPAWNPOINT)
+
+            spawnpoint.SetMaster(networked_spawnpoint, true)
         end
 
         undo.Create('info_player_start')
@@ -128,13 +116,15 @@ function TOOL:LeftClick(tool_tr)
             undo.SetPlayer(self:GetOwner())
         undo.Finish()
 
-        spawnpoint.InvalidateCache()
+        hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
     end
 
     return true
 end
 
 function TOOL:RightClick(tool_tr)
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+
     local tr = self:GetTrace()
     local ent = tr.Entity
 
@@ -155,9 +145,9 @@ function TOOL:RightClick(tool_tr)
 	    util.Effect('entity_remove', ed, true, true)
 
 		if ent:GetSpawnPointParent() then
-		    hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', ent, true)
-
             ent:Destroy()
+
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
 
             return true
         end
@@ -167,9 +157,11 @@ function TOOL:RightClick(tool_tr)
 
         -- Wait for the remove effect
         timer.Simple(0.15, function()
-            if ent:IsValid() then
-                ent:Destroy()
-            end
+            if not ent:IsValid() then return end
+
+            ent:Destroy()
+
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
         end)
     end
 
@@ -177,6 +169,8 @@ function TOOL:RightClick(tool_tr)
 end
 
 function TOOL:Reload(tool_tr)
+    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+
     local degrees = self:GetClientNumber('rotate_degrees')
 
     local tr = self:GetTrace()
@@ -184,17 +178,14 @@ function TOOL:Reload(tool_tr)
 
     if IsValid(ent) and ent:GetClass() == 'networked_spawnpoint' then
         if SERVER then
-            local parent = ent:GetSpawnPointParent()
-            local point = parent or ent
+            local point = ent:GetSpawnPointParent() or ent
             local ang = point:GetAngles()
 
             ang.y = math.SnapTo(ang.y + degrees, degrees) % 360
 
             point:SetAngles(ang)
 
-            if parent then
-                hook.Run('SpawnpointEditor.OnMapCreatedPointChanged', ent, false)
-            end
+            hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
         end
 
         tool_tr.HitNormal = tr.HitNormal
