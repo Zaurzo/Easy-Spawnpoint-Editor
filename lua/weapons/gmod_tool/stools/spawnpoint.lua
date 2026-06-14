@@ -93,11 +93,6 @@ function TOOL:LeftClick(tool_tr)
     end
 
     if SERVER then
-        if spawnpoint.GetCount() >= spawnpoint.editor.MAX_SPAWNPOINT_COUNT then
-            self:GetOwner():LimitHit('spawnpoint')
-            return false
-        end
-
         local networked_spawnpoint = ents.Create('networked_spawnpoint')
 
         if not networked_spawnpoint:IsValid() then
@@ -175,7 +170,7 @@ end
 
 function TOOL:Reload(tool_tr)
     if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
-    
+
     local degrees = self:GetClientNumber('rotate_degrees')
 
     local tr = self:GetTrace()
