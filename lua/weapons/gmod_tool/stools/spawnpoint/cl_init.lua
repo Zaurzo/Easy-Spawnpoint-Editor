@@ -80,13 +80,6 @@ function TOOL.BuildCPanel(panel)
     )
 
     panel:Help('#tool.spawnpoint.commands')
-    
-    create_button(
-        panel, 
-        '#tool.spawnpoint.button_reset', 
-        'spawnpoint_reset',
-        '#hint.spawnpoint.reset'
-    )
 
     create_button(
         panel, 
