@@ -64,7 +64,13 @@ function TOOL:GetTrace()
     return util.TraceLine(trace)
 end
 
+function TOOL:IsOwnerHoldingEntity()
+    return self:GetOwner():GetUseEntity():IsValid()
+end
+
 function TOOL:LeftClick(tool_tr)
+    if self:IsOwnerHoldingEntity() then return end
+
     local tr = self:GetTrace()
 
     tool_tr.HitNormal = tr.HitNormal
@@ -147,6 +153,8 @@ function TOOL:LeftClick(tool_tr)
 end
 
 function TOOL:RightClick(tool_tr)
+    if self:IsOwnerHoldingEntity() then return end
+
     local tr = self:GetTrace()
     local ent = tr.Entity
 
@@ -191,6 +199,8 @@ function TOOL:RightClick(tool_tr)
 end
 
 function TOOL:Reload(tool_tr)
+    if self:IsOwnerHoldingEntity() then return end
+
     local degrees = self:GetClientNumber('rotate_degrees')
 
     local tr = self:GetTrace()
