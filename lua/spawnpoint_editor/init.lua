@@ -66,11 +66,11 @@ function spawnpoint_editor.Setup()
     end
 end
 
-function spawnpoint_editor.RestoreMapDefaults()
+function spawnpoint_editor.RestoreMissingDefaults()
     for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
         local parent = point:GetSpawnPointParent()
 
-        if parent then
+        if parent and point.IsDestroyed then
             parent:SetPos(point.StoredPosition)
             parent:SetAngles(point.StoredAngle)
 
@@ -83,6 +83,14 @@ function spawnpoint_editor.RestoreMapDefaults()
             spawnpoint.SetUnsuitable(parent, false)
 
             point.IsDestroyed = false
+        end
+    end
+end
+
+function spawnpoint_editor.RemoveMapCreated()
+    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+        if point:GetSpawnPointParent() then
+            point:Destroy()
         end
     end
 end
@@ -112,19 +120,36 @@ end)
 concommand.Add('spawnpoint_remove_map_created', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
-    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
-        if point:GetSpawnPointParent() then
-            point:Destroy()
-        end
-    end
+    spawnpoint_editor.RemoveMapCreated()
 
     save_data:Save()
 end)
 
-concommand.Add('spawnpoint_restore_default', function(ply)
+concommand.Add('spawnpoint_restore_missing', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
-    spawnpoint_editor.RestoreMapDefaults()
+    spawnpoint_editor.RestoreMissingDefaults()
+
+    save_data:Save()
+end)
+
+concommand.Add('spawnpoint_reset_map_created', function(ply)
+    if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
+
+    spawnpoint_editor.RemoveMapCreated()
+    spawnpoint_editor.RestoreMissingDefaults()
+
+    save_data:Save()
+end)
+
+concommand.Add('spawnpoint_reset', function(ply)
+    if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
+
+    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+        point:Destroy()
+    end
+
+    spawnpoint_editor.RestoreMissingDefaults()
 
     save_data:Save()
 end)

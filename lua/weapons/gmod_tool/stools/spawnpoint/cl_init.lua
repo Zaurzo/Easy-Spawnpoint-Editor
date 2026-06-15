@@ -53,6 +53,17 @@ end
 
 local default_convars = TOOL:BuildConVarList()
 
+local function create_button(panel, label, command, msg)
+    local button = panel:Button(label, command)
+
+    function button:DoClick()
+        RunConsoleCommand(command)
+
+        notification.AddLegacy(msg, NOTIFY_CLEANUP, 5)
+        surface.PlaySound('buttons/button15.wav')
+    end
+end
+
 function TOOL.BuildCPanel(panel)
     panel:Help('#tool.spawnpoint.desc')
     panel:ToolPresets('spawnpoint', default_convars)
@@ -70,9 +81,42 @@ function TOOL.BuildCPanel(panel)
         'spawnpoint_b'
     )
 
-    panel:Button('#tool.spawnpoint.button_restore', 'spawnpoint_restore_default')
-    panel:Button('#tool.spawnpoint.button_remove_map', 'spawnpoint_remove_map_created')
-    panel:Button('#tool.spawnpoint.button_remove_player', 'spawnpoint_remove_player_created')
+    panel:Help('#tool.spawnpoint.commands')
+    
+    create_button(
+        panel, 
+        '#tool.spawnpoint.button_reset', 
+        'spawnpoint_reset',
+        '#hint.spawnpoint.reset'
+    )
+
+    create_button(
+        panel, 
+        '#tool.spawnpoint.button_reset_map_created', 
+        'spawnpoint_reset_map_created',
+        '#hint.spawnpoint.reset_map_created'
+    )
+
+    create_button(
+        panel, 
+        '#tool.spawnpoint.button_restore', 
+        'spawnpoint_restore_missing',
+        '#hint.spawnpoint.restore'
+    )
+
+    create_button(
+        panel, 
+        '#tool.spawnpoint.button_remove_map', 
+        'spawnpoint_remove_map_created',
+        '#hint.spawnpoint.removed_map_created'
+    )
+
+    create_button(
+        panel, 
+        '#tool.spawnpoint.button_remove_player', 
+        'spawnpoint_remove_player_created',
+        '#hint.spawnpoint.removed_player_created'
+    )
 end
 
 hook.Add('CanTool', 'SpawnpointEditor', function(ply, tr, tool_name)
