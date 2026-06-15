@@ -6,6 +6,8 @@ function TOOL:Think()
 end
 
 function TOOL:Holster()
+    self:SetOperation(0)
+    
     local wep = self:GetWeapon()
     local move_ent = wep:GetNWEntity('SpawnpointEditor_MoveEnt')
     

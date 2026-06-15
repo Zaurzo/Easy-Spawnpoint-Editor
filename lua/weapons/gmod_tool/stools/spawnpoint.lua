@@ -64,8 +64,13 @@ function TOOL:GetTrace()
     return util.TraceLine(trace)
 end
 
+function TOOL:IsOwnerHoldingEntity()
+    local ply = self:GetOwner()
+    return spawnpoint_editor.IsHoldingEntity(ply)
+end
+
 function TOOL:LeftClick(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+    if self:IsOwnerHoldingEntity() then return end
 
     local tr = self:GetTrace()
 
@@ -149,7 +154,7 @@ function TOOL:LeftClick(tool_tr)
 end
 
 function TOOL:RightClick(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+    if self:IsOwnerHoldingEntity() then return end
 
     local tr = self:GetTrace()
     local ent = tr.Entity
@@ -195,7 +200,7 @@ function TOOL:RightClick(tool_tr)
 end
 
 function TOOL:Reload(tool_tr)
-    if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
+    if self:IsOwnerHoldingEntity() then return end
 
     local degrees = self:GetClientNumber('rotate_degrees')
 
