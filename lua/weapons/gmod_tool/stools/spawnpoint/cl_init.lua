@@ -1,6 +1,4 @@
 
-TOOL.SpawnPointIndex = 0
-
 local looking_at_spawnpoint
 
 function TOOL:Think()
