@@ -17,7 +17,9 @@ function ENT:Initialize()
         Vector(10, 10, 70)
     )
 
-    if CLIENT then
+    if SERVER then
+        spawnpoint.InvalidateCache()
+    else
         self.halo = { self }
     end
 end
