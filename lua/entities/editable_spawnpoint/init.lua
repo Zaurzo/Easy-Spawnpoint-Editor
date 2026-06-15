@@ -102,7 +102,7 @@ hook.Add('FindUseEntity', 'SpawnpointEditor', function(ply, ent)
     local tr = tool:GetTrace()
     ent = tr.Entity
 
-    if IsValid(ent) and ent:GetClass() == 'networked_spawnpoint' then
+    if IsValid(ent) and ent:GetClass() == 'editable_spawnpoint' then
         return ent:OnUse(ply, tool)
     end
 end)

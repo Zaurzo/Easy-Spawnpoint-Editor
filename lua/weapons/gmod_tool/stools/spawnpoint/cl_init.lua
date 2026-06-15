@@ -3,7 +3,7 @@ local looking_at_spawnpoint
 
 function TOOL:Think()
     local ent = self:GetTrace().Entity
-    looking_at_spawnpoint = IsValid(ent) and ent:GetClass() == 'networked_spawnpoint'
+    looking_at_spawnpoint = IsValid(ent) and ent:GetClass() == 'editable_spawnpoint'
 
     self:SetClientInfo('index', looking_at_spawnpoint and ent:EntIndex() or 0)
 end

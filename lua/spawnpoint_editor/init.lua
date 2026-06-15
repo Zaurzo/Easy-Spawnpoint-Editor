@@ -5,12 +5,12 @@ local save_data = include('includes/persistence.lua')
 save_data:Load()
 
 -- Register our custom spawnpoint class to be chosen by the default spawnpoint selector
-spawnpoint.RegisterClass('networked_spawnpoint')
+spawnpoint.RegisterClass('editable_spawnpoint')
 
 -- Default spawnpoint entities are point entities, meaning they are not networked to the client.
 -- This means we have to create our own visual representation of them.
 local function setup_visual_representation(point, data)
-    local visual = ents.Create('networked_spawnpoint')
+    local visual = ents.Create('editable_spawnpoint')
     if not visual:IsValid() then return end
 
     visual:Spawn()
@@ -49,25 +49,25 @@ function spawnpoint_editor.Setup()
     end
 
     for k, data in ipairs(save_data.points.created) do
-        local networked_spawnpoint = ents.Create('networked_spawnpoint')
+        local editable_spawnpoint = ents.Create('editable_spawnpoint')
 
-        if not networked_spawnpoint:IsValid() then
+        if not editable_spawnpoint:IsValid() then
             ErrorNoHaltWithStack('could not create spawnpoint')
             break
         end
 
-        networked_spawnpoint:SetPos(data.pos)
-        networked_spawnpoint:SetAngles(data.ang)
-        networked_spawnpoint:Spawn()
-        networked_spawnpoint:SetSpawnPointColor(data.color)
-        networked_spawnpoint:SetIsMasterSpawnPoint(data.master)
+        editable_spawnpoint:SetPos(data.pos)
+        editable_spawnpoint:SetAngles(data.ang)
+        editable_spawnpoint:Spawn()
+        editable_spawnpoint:SetSpawnPointColor(data.color)
+        editable_spawnpoint:SetIsMasterSpawnPoint(data.master)
 
-        spawnpoint.SetMaster(networked_spawnpoint, data.master)
+        spawnpoint.SetMaster(editable_spawnpoint, data.master)
     end
 end
 
 function spawnpoint_editor.RestoreMissingDefaults()
-    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+    for k, point in ipairs(ents.FindByClass('editable_spawnpoint')) do
         local parent = point:GetSpawnPointParent()
 
         if parent and point.IsDestroyed then
@@ -88,7 +88,7 @@ function spawnpoint_editor.RestoreMissingDefaults()
 end
 
 function spawnpoint_editor.RemoveMapCreated()
-    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+    for k, point in ipairs(ents.FindByClass('editable_spawnpoint')) do
         if point:GetSpawnPointParent() then
             point:Destroy()
         end
@@ -108,7 +108,7 @@ end)
 concommand.Add('spawnpoint_remove_player_created', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
-    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+    for k, point in ipairs(ents.FindByClass('editable_spawnpoint')) do
         if not point:GetSpawnPointParent() then
             point:Destroy()
         end
@@ -145,7 +145,7 @@ end)
 concommand.Add('spawnpoint_reset', function(ply)
     if IsValid(ply) and not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
-    for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+    for k, point in ipairs(ents.FindByClass('editable_spawnpoint')) do
         point:Destroy()
     end
 

@@ -104,7 +104,7 @@ function TOOL:LeftClick(tool_tr)
     local tr_ent = tr.Entity
 
     -- Apply settings to spawnpoint on crosshair
-    if IsValid(tr_ent) and tr_ent:GetClass() == 'networked_spawnpoint' then
+    if IsValid(tr_ent) and tr_ent:GetClass() == 'editable_spawnpoint' then
         local is_master = self:GetClientBool('master')
         local point = tr_ent
 
@@ -124,26 +124,26 @@ function TOOL:LeftClick(tool_tr)
     end
 
     if SERVER then
-        local networked_spawnpoint = ents.Create('networked_spawnpoint')
+        local editable_spawnpoint = ents.Create('editable_spawnpoint')
 
-        if not networked_spawnpoint:IsValid() then
+        if not editable_spawnpoint:IsValid() then
             error('could not create networked spawnpoint')
         end
 
-        networked_spawnpoint:SetPos(tr.HitPos)
-        networked_spawnpoint:SetAngles(self:GetAngle())
-        networked_spawnpoint:SetSpawnEffect(true)
-        networked_spawnpoint:Spawn()
-        networked_spawnpoint:SetSpawnPointColor(self:GetColorVector())
+        editable_spawnpoint:SetPos(tr.HitPos)
+        editable_spawnpoint:SetAngles(self:GetAngle())
+        editable_spawnpoint:SetSpawnEffect(true)
+        editable_spawnpoint:Spawn()
+        editable_spawnpoint:SetSpawnPointColor(self:GetColorVector())
 
         if self:GetClientBool('master') then
-            networked_spawnpoint:SetIsMasterSpawnPoint(true)
+            editable_spawnpoint:SetIsMasterSpawnPoint(true)
 
-            spawnpoint.SetMaster(networked_spawnpoint, true)
+            spawnpoint.SetMaster(editable_spawnpoint, true)
         end
 
         undo.Create('info_player_start')
-            undo.AddEntity(networked_spawnpoint)
+            undo.AddEntity(editable_spawnpoint)
             undo.SetPlayer(self:GetOwner())
         undo.Finish()
 
@@ -159,7 +159,7 @@ function TOOL:RightClick(tool_tr)
     local tr = self:GetTrace()
     local ent = tr.Entity
 
-    if not IsValid(ent) or ent:GetClass() ~= 'networked_spawnpoint' then
+    if not IsValid(ent) or ent:GetClass() ~= 'editable_spawnpoint' then
         return false
     end
 
@@ -207,7 +207,7 @@ function TOOL:Reload(tool_tr)
     local tr = self:GetTrace()
     local ent = tr.Entity
 
-    if IsValid(ent) and ent:GetClass() == 'networked_spawnpoint' then
+    if IsValid(ent) and ent:GetClass() == 'editable_spawnpoint' then
         if SERVER then
             local point = ent:GetSpawnPointParent() or ent
             local ang = point:GetAngles()
