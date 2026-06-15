@@ -65,7 +65,8 @@ function TOOL:GetTrace()
 end
 
 function TOOL:IsOwnerHoldingEntity()
-    return self:GetOwner():GetUseEntity():IsValid()
+    local ply = self:GetOwner()
+    return spawnpoint_editor.IsHoldingEntity(ply)
 end
 
 function TOOL:LeftClick(tool_tr)
