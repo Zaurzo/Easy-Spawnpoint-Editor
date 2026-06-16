@@ -100,7 +100,7 @@ function ENT:OnUse(ply, tool)
         return NULL
     end
 
-    if IsValid(wep.SpawnpointEditor_MoveEnt) then 
+    if IsValid(wep:GetNWEntity('SpawnpointEditor_MoveEnt')) then 
         return NULL
     end
 
