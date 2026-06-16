@@ -14,7 +14,7 @@ local render_settings = {
 }
 
 function TOOL:DrawHUD()
-    if looking_at_spawnpoint then return end
+    if looking_at_spawnpoint and self:GetOperation() ~= 2 then return end
     if not spawnpoint_editor.IsAllowedToUse(self:GetOwner()) then return end
     if self:IsOwnerHoldingEntity() then return end
 

@@ -21,27 +21,29 @@ function ENT:Think()
     local ply = LocalPlayer()
     if not spawnpoint_editor.IsAllowedToUse(ply) then return end
 
-    local wep = ply:GetActiveWeapon()
-    if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then return end
-
     local tool = ply:GetTool()
     if not tool or tool.Mode ~= 'spawnpoint' then return end
 
-    local index = self:EntIndex()
+    local wep = ply:GetActiveWeapon()
+    if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then return end
 
-    if index == tool:GetClientNumber('index') then
-        local tip = self:GetSpawnPointClassName()
+    if tool:GetOperation() ~= 2 then
+        local index = self:EntIndex()
 
-        if self:GetIsMasterSpawnPoint() then
-            tip = string.format('%s (%s)', tip, language.GetPhrase('spawnpoint.master'))
+        if index == tool:GetClientNumber('index') then
+            local tip = self:GetSpawnPointClassName()
+
+            if self:GetIsMasterSpawnPoint() then
+                tip = string.format('%s (%s)', tip, language.GetPhrase('spawnpoint.master'))
+            end
+
+            local offset = self:OBBCenter()
+            offset.z = self:OBBMaxs().z - 6
+
+            AddWorldTip(index, tip, nil, self:GetPos() + offset)
+
+            halo.Add(self.halo_tab, color_white, 1, 1, 2, true, true)
         end
-
-        local offset = self:OBBCenter()
-        offset.z = self:OBBMaxs().z - 6
-
-        AddWorldTip(index, tip, nil, self:GetPos() + offset)
-
-        halo.Add(self.halo_tab, color_white, 1, 1, 2, true, true)
     end
 
     self.CanDraw = true
