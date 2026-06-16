@@ -13,8 +13,8 @@ local function setup_visual_representation(point, data)
     local visual = ents.Create('editable_spawnpoint')
     if not visual:IsValid() then return end
 
-    visual:Spawn()
     visual:SetSpawnPointParent(point)
+    visual:Spawn()
 
     if not data then
         return visual
@@ -71,18 +71,7 @@ function spawnpoint_editor.RestoreMissingDefaults()
         local parent = point:GetSpawnPointParent()
 
         if parent and point.IsDestroyed then
-            parent:SetPos(point.StoredPosition)
-            parent:SetAngles(point.StoredAngle)
-
-            point:SetNoDraw(false)
-            point:SetNoCollide(false)
-            point:SetSpawnPointColor(Vector(0, 1, 0))
-            point:SetIsMasterSpawnPoint(point.StoredMaster)
-
-            spawnpoint.SetMaster(parent, point.StoredMaster)
-            spawnpoint.SetUnsuitable(parent, false)
-
-            point.IsDestroyed = false
+            point:RestoreVanillaState()
         end
     end
 end

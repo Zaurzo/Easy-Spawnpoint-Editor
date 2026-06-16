@@ -17,11 +17,7 @@ function ENT:Initialize()
         Vector(10, 10, 70)
     )
 
-    if SERVER then
-        spawnpoint.InvalidateCache()
-    else
-        self.halo = { self }
-    end
+    self:Setup()
 end
 
 function ENT:SetupDataTables()
@@ -36,11 +32,11 @@ function ENT:SetupDataTables()
     end
 end
 
-local CONTENTS_PLAYER_USE = 100745227
+local MASK_PLAYER_USE = 100745227
 
 function ENT:TestCollision(startpos, delta, isbox, extends, mask)
     -- Allow player +use
-    if bit.band(mask, CONTENTS_PLAYER_USE) == CONTENTS_PLAYER_USE then
+    if bit.band(mask, MASK_PLAYER_USE) == MASK_PLAYER_USE then
         return true
     end
 

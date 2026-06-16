@@ -4,23 +4,49 @@ AddCSLuaFile('cl_init.lua')
 
 include('shared.lua')
 
-function ENT:UpdateTransmitState()
-    return TRANSMIT_ALWAYS
+function ENT:Setup()
+    self.VanillaState = {
+        pos = self:GetPos(),
+        ang = self:GetAngles(),
+        color = self:GetSpawnPointColor(),
+        master = self:GetIsMasterSpawnPoint()
+    }
+
+    spawnpoint.InvalidateCache()
+end
+
+function ENT:RestoreVanillaState()
+    local vanilla_state = self.VanillaState
+    local point = self
+
+    if self.SpawnPointParent then
+        point = self.SpawnPointParent
+
+        spawnpoint.SetUnsuitable(point, false)
+    end
+
+    point:SetPos(vanilla_state.pos)
+    point:SetAngles(vanilla_state.ang)
+
+    self:SetNoDraw(false)
+    self:SetNoCollide(false)
+    self:SetSpawnPointColor(vanilla_state.color)
+
+    self.IsDestroyed = false
+
+    spawnpoint.SetMaster(point, vanilla_state.master)
 end
 
 function ENT:SetSpawnPointParent(point)
-    self.StoredPosition = point:GetPos()
-    self.StoredAngle = point:GetAngles()
-    self.StoredMaster = spawnpoint.IsMaster(point)
-
     self:SetPos(point:GetPos())
     self:SetAngles(point:GetAngles())
-    self:SetSpawnPointClassName(point:GetClass())
     self:SetParent(point)
     self:DeleteOnRemove(point)
     self:SetUseType(SIMPLE_USE)
 
-    if self.StoredMaster then
+    self:SetSpawnPointClassName(point:GetClass())
+
+    if spawnpoint.IsMaster(point) then
         self:SetIsMasterSpawnPoint(true)
     end
 

@@ -11,6 +11,10 @@ matproxy.Add {
     end
 }
 
+function ENT:Setup()
+    self.halo_tab = { self }
+end
+
 function ENT:Think()
     self.CanDraw = false
 
@@ -37,7 +41,7 @@ function ENT:Think()
 
         AddWorldTip(index, tip, nil, self:GetPos() + offset)
 
-        halo.Add(self.halo, color_white, 1, 1, 2, true, true)
+        halo.Add(self.halo_tab, color_white, 1, 1, 2, true, true)
     end
 
     self.CanDraw = true
