@@ -30,6 +30,16 @@ else
     include('spawnpoint/cl_init.lua')
 end
 
+local NW_VAR_MOVE_ENT = 'SpawnpointEditor_MoveEnt'
+
+function TOOL:GetMoveSpawnPoint()
+    return self:GetWeapon():GetNWEntity(NW_VAR_MOVE_ENT, NULL)
+end
+
+function TOOL:SetMoveSpawnPoint(point)
+    self:GetWeapon():SetNWEntity(NW_VAR_MOVE_ENT, point)
+end
+
 function TOOL:SetClientInfo(property, value)
     if SERVER then
         self:GetOwner():ConCommand('spawnpoint_' .. property .. ' ' .. tostring(value))
@@ -78,7 +88,7 @@ function TOOL:LeftClick(tool_tr)
     tool_tr.HitPos = tr.HitPos
 
     local wep = self:GetWeapon()
-    local move_ent = wep:GetNWEntity('SpawnpointEditor_MoveEnt')
+    local move_ent = self:GetMoveSpawnPoint()
 
     -- Move selected spawnpoint
     if IsValid(move_ent) then
@@ -94,8 +104,7 @@ function TOOL:LeftClick(tool_tr)
 
         hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
 
-        wep:SetNWEntity('SpawnpointEditor_MoveEnt', NULL)
-
+        self:SetMoveSpawnPoint(NULL)
         self:SetOperation(1)
 
         return true
