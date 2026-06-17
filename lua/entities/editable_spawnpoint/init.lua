@@ -96,11 +96,11 @@ end
 function ENT:OnUse(ply, tool)
     local wep = ply:GetActiveWeapon()
 
-    if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then 
+    if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then
         return NULL
     end
 
-    if IsValid(wep:GetNWEntity('SpawnpointEditor_MoveEnt')) then 
+    if IsValid(wep:GetNWEntity('SpawnpointEditor_MoveEnt')) then
         return NULL
     end
 
@@ -109,10 +109,8 @@ function ENT:OnUse(ply, tool)
 
     wep:SetNWEntity('SpawnpointEditor_MoveEnt', self)
 
-    local ang = self:GetAngles()
-
-    tool:SetOperation(2)
-    tool:SetClientInfo('rotation', ang.y)
+    tool:SetOperation(tool.Operation.Move)
+    tool:SetClientInfo('rotation', self:GetAngles().y)
 
     return self
 end

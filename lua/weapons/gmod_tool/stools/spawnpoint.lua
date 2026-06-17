@@ -22,6 +22,18 @@ TOOL.Information = {
     { name = 'use', op = 1 },
 }
 
+---@enum Operation
+TOOL.Operation = {
+    --- The default operation.
+    Add = 0,
+
+    --- When aiming at a spawnpoint.
+    Apply = 1,
+
+    --- When you have a spawnpoint selected.
+    Move = 2
+}
+
 TOOL.SelectDistance = 512
 
 if SERVER then
@@ -105,7 +117,7 @@ function TOOL:LeftClick(tool_tr)
         hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
 
         self:SetMoveSpawnPoint(NULL)
-        self:SetOperation(1)
+        self:SetOperation(self.Operation.Apply)
 
         return true
     end
