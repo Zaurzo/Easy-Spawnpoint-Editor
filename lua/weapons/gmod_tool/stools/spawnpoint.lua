@@ -99,7 +99,6 @@ function TOOL:LeftClick(tool_tr)
     tool_tr.HitNormal = tr.HitNormal
     tool_tr.HitPos = tr.HitPos
 
-    local wep = self:GetWeapon()
     local move_ent = self:GetMoveSpawnPoint()
 
     -- Move selected spawnpoint
