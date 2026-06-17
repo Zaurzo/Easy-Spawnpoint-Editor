@@ -8,13 +8,11 @@ end
 function TOOL:Holster()
     self:SetOperation(0)
     
-    local wep = self:GetWeapon()
-    local move_ent = wep:GetNWEntity('SpawnpointEditor_MoveEnt')
-    
+    local move_ent = self:GetMoveSpawnPoint()
     if not IsValid(move_ent) then return end
 
     move_ent:SetNoCollide(false)
     move_ent:SetNoDraw(false)
 
-    wep:SetNWEntity('SpawnpointEditor_MoveEnt', NULL)
+    self:SetMoveSpawnPoint(NULL)
 end
