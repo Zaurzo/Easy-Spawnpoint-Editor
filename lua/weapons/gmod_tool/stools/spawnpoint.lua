@@ -162,11 +162,6 @@ function TOOL:LeftClick(tool_tr)
             spawnpoint.SetMaster(editable_spawnpoint, true)
         end
 
-        undo.Create('info_player_start')
-            undo.AddEntity(editable_spawnpoint)
-            undo.SetPlayer(self:GetOwner())
-        undo.Finish()
-
         hook.Run('SpawnpointEditor.OnSpawnpointsChanged')
     end
 
