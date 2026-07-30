@@ -35,6 +35,8 @@ end
 local MASK_PLAYER_USE = 100745227
 
 function ENT:TestCollision(startpos, delta, isbox, extends, mask)
+    if mask == MASK_ALL then return false end -- Block properties menu
+    
     -- Allow player +use
     if bit.band(mask, MASK_PLAYER_USE) == MASK_PLAYER_USE then
         return true
