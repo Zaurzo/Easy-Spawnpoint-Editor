@@ -1,3 +1,4 @@
+file.CreateDir('spawnpoint_editor')
 
 local save_data = {
     path = 'spawnpoint_editor/' .. game.GetMap() .. '.json',
