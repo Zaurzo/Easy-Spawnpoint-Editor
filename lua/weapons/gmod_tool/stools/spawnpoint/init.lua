@@ -1,20 +1,24 @@
 
 function TOOL:Think()
-    if self:GetOperation() ~= 2 then
-        self:SetOperation(self:GetClientNumber('index') ~= 0 and 1 or 0)
+    if self:GetOperation() == self.Operation.Move then return end
+
+    local operation = self.Operation.Add
+    
+    if self:GetClientNumber('index') ~= 0 then
+        operation = self.Operation.Apply
     end
+
+    self:SetOperation(operation)
 end
 
 function TOOL:Holster()
-    self:SetOperation(0)
-    
-    local wep = self:GetWeapon()
-    local move_ent = wep:GetNWEntity('SpawnpointEditor_MoveEnt')
-    
+    self:SetOperation(self.Operation.Add)
+
+    local move_ent = self:GetMoveSpawnPoint()
     if not IsValid(move_ent) then return end
 
     move_ent:SetNoCollide(false)
     move_ent:SetNoDraw(false)
 
-    wep:SetNWEntity('SpawnpointEditor_MoveEnt', NULL)
+    self:SetMoveSpawnPoint(NULL)
 end

@@ -1,3 +1,4 @@
+file.CreateDir('spawnpoint_editor')
 
 local save_data = {
     path = 'spawnpoint_editor/' .. game.GetMap() .. '.json',
@@ -47,7 +48,7 @@ local save_data = {
             created = {}
         }
 
-        for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+        for k, point in ipairs(ents.FindByClass('editable_spawnpoint')) do
             local data = {
                 pos = point:GetPos(),
                 ang = point:GetAngles(),
@@ -92,7 +93,7 @@ local save_data = {
         save_data.points = points
         save_data:WriteToDisk()
 
-        for k, point in ipairs(ents.FindByClass('networked_spawnpoint')) do
+        for k, point in ipairs(ents.FindByClass('editable_spawnpoint')) do
             local parent = point:GetSpawnPointParent()
 
             if parent then

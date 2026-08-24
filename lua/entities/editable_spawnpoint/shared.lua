@@ -17,9 +17,7 @@ function ENT:Initialize()
         Vector(10, 10, 70)
     )
 
-    if CLIENT then
-        self.halo = { self }
-    end
+    self:Setup()
 end
 
 function ENT:SetupDataTables()
@@ -34,11 +32,13 @@ function ENT:SetupDataTables()
     end
 end
 
-local CONTENTS_PLAYER_USE = 100745227
+local MASK_PLAYER_USE = 100745227
 
 function ENT:TestCollision(startpos, delta, isbox, extends, mask)
+    if mask == MASK_ALL then return false end -- Block properties menu
+    
     -- Allow player +use
-    if bit.band(mask, CONTENTS_PLAYER_USE) == CONTENTS_PLAYER_USE then
+    if bit.band(mask, MASK_PLAYER_USE) == MASK_PLAYER_USE then
         return true
     end
 
