@@ -1,14 +1,15 @@
+-- Spawnpoint Module
+-- This should only really be used after entities are initialized
 
 spawnpoint = {}
 
--- Spawnflag enum
--- The spawnpoint selector will always choose the first spawnpoint with this flag
+-- Spawnflag that determines if the spawnpoint is the master spawnpoint
 local SF_MASTER_SPAWNPOINT = 1
 
-local class_registry = {}
-local unsuitable_points = {}
+local spawn_point_classes
+local spawn_point_cache
 
-local entity_classes = {
+local spawn_point_class_registry = {
    	-- Half-Life 2 (Deathmatch) Maps
 	info_player_start = true,
 	info_player_combine = true,
@@ -62,149 +63,177 @@ local entity_classes = {
 	gmod_player_start = true -- (Old) GMod Maps
 }
 
-local function get_all_spawnpoints(map_created)
-    local points, n = {}, 0
+local function get_class_list()
+    if spawn_point_classes then
+        return spawn_point_classes
+    end
 
-    for k, ent in ents.Iterator() do
-        if entity_classes[ent:GetClass()] and (not map_created or ent:CreatedByMap()) then
-            n = n + 1
-            points[n] = ent
+    local gmod_player_start = scripted_ents.GetStored('gmod_player_start')
+    if not gmod_player_start then return end
+    
+    spawn_point_classes = gmod_player_start.t.SpawnPointClasses
+
+    local is_in_class_list = {}
+
+    -- Sync our internal lookup table with the class list
+    for _, class in ipairs(spawn_point_classes) do
+        is_in_class_list[class] = true
+        spawn_point_class_registry[class] = true
+    end
+
+    -- Add any custom registered class to the class list
+    for class in pairs(spawn_point_class_registry) do
+        if not is_in_class_list[class] then
+            table.insert(spawn_point_classes, class)
         end
     end
 
-    return points, n
+    return spawn_point_classes
 end
 
-function spawnpoint.IsSpawnPointClass(class)
-    return entity_classes[class]
+---Registers a class as a spawnpoint entity class.
+---@param class_name string The name of the class to register.
+function spawnpoint.RegisterClass(class_name)
+    if spawn_point_class_registry[class_name] then return end
+
+    local class_list = get_class_list()
+
+    if class_list then
+        table.insert(class_list, class_name)
+    end
+
+    spawn_point_class_registry[class_name] = true
+    spawn_point_cache = nil
+
+    spawnpoint.InvalidateCache()
 end
 
-function spawnpoint.RegisterClass(class)
-    if entity_classes[class] then return end
-
-    entity_classes[class] = true
-
-    table.insert(class_registry, class)
+---Returns whether or not the provided class is a spawnpoint entity class.
+---@param class_name string The name of the class to check.
+---@return boolean
+function spawnpoint.IsClass(class_name)
+    return spawn_point_class_registry[class_name]
 end
 
-function spawnpoint.GetClassRegistry()
-    return class_registry
-end
+---Returns a new list of all spawnpoints currently on the map.
+---@return Entity[]
+function spawnpoint.GetAll()
+    local points = {}
 
-function spawnpoint.GetAll(map_created)
-    local points = get_all_spawnpoints(map_created)
+    for _, ent in ents.Iterator() do
+        if spawn_point_class_registry[ent:GetClass()] then
+            table.insert(points, ent)
+        end
+    end
+
     return points
 end
 
-function spawnpoint.GetCount(map_created)
-    local _, n = get_all_spawnpoints(map_created)
-    return n
-end
+local current_entity_cache
 
-local function invalidate_cache()
-    local gm = gmod.GetGamemode()
+---Returns an iterator for all spawnpoints currently on the map.
+---@return table spawnpoints The cached spawnpoint list to iterate over.
+---@return function iterator
+---@return number startIndex
+function spawnpoint.Iterator()
+    local _, entity_cache = ents.Iterator() -- entity cache is refreshed whenever an entity is created or removed
 
-    if gm then
-        gm.SpawnPoints = nil
+    if entity_cache ~= current_entity_cache then
+        spawn_point_cache = spawnpoint.GetAll()
+        current_entity_cache = entity_cache
     end
+
+    return ipairs(spawn_point_cache)
 end
 
+---Sets a spawnpoint to be unsuitable for selection or not.
+---@param point Entity The spawnpoint to set unsuitable.
+---@param value boolean Whether or not to be unsuitable.
 function spawnpoint.SetUnsuitable(point, value)
-    if not entity_classes[point:GetClass()] then return end
+    if not spawnpoint.IsClass(point:GetClass()) then return end
 
-    unsuitable_points[point] = value or nil
+    point._mSpawnpointSuitable = value and true or nil
 
-    invalidate_cache()
+    spawnpoint.InvalidateCache()
 end
 
-function spawnpoint.SetMaster(point, status)
-    if not entity_classes[point:GetClass()] then return end
+---Returns whether or not the spawnpoint is unsuitable for selection.
+---@param point Entity The spawnpoint to check.
+---@return boolean unsuitable
+function spawnpoint.IsUnsuitable(point)
+    return point._mSpawnpointSuitable
+end
 
-    if status then
+---Sets a spawnpoint to be the master spawnpoint.
+---The spawnpoint selector will choose master spawnpoints over all else.
+---@param point Entity The spawnpoint to set as the master.
+---@param value boolean Whether or not to be master.
+function spawnpoint.SetMaster(point, value)
+    if not spawnpoint.IsClass(point:GetClass()) then return end
+
+    if value then
         point:AddSpawnFlags(SF_MASTER_SPAWNPOINT)
     else
         point:RemoveSpawnFlags(SF_MASTER_SPAWNPOINT)
     end
+
+    spawnpoint.InvalidateCache()
 end
 
-function spawnpoint.IsUnsuitable(point)
-    return unsuitable_points[point] or false
-end
-
+---Returns whether or not the spawnpoint is the master spawnpoint.
+---@param point Entity The spawnpoint to check.
+---@return boolean master
 function spawnpoint.IsMaster(point)
-    return entity_classes[point:GetClass()] and point:HasSpawnFlags(SF_MASTER_SPAWNPOINT)
-end
-
-spawnpoint.InvalidateCache = invalidate_cache
-
-local function add_missing_values(to, from)
-    local existing = {}
-
-    for k, value in ipairs(to) do
-        existing[value] = true
-    end
-
-    for k, value in ipairs(from) do
-        if not existing[value] then
-            table.insert(to, value)
-        end
+    if spawnpoint.IsClass(point:GetClass()) then
+        return point:HasSpawnFlags(SF_MASTER_SPAWNPOINT)
     end
 end
 
-hook.Add('PreRegisterSENT', 'SpawnPointClassRegistry', function(tab, class)
-    if class ~= 'gmod_player_start' then return end
+---Invalidates the internal spawnpoint entity cache used by the gamemode.
+function spawnpoint.InvalidateCache()
+    local GM = gmod.GetGamemode()
 
-    -- We need to use this table as it's what the default spawnpoint selector uses
-    local custom_classes = tab.SpawnPointClasses
-    if not custom_classes then return end
-
-    for k, class in ipairs(custom_classes) do
-        entity_classes[class] = true
+    if GM then
+        GM.SpawnPoints = nil
     end
+end
 
-    add_missing_values(custom_classes, class_registry)
+-- Detour management
 
-    class_registry = custom_classes
-end)
-
-hook.Add('IsSpawnpointSuitable', 'SpawnPointSuitability', function(ply, point)
-    if unsuitable_points[point] then
-        return false
-    end
-end)
-
-hook.Add('OnGamemodeLoaded', 'RemoveUnsuitableSpawnPoints', function()
+-- Clear unsuitable spawnpoints from internal gamemode spawnpoint list
+--  I detour this because the default selector has an unfortunate behavior:
+--  if all candidates fail/are unsuitable, it will just return the last candidate tried.
+local function wrap_spawnpoint_selector()
     local GM = gmod.GetGamemode()
     local PlayerSelectSpawn = GM.PlayerSelectSpawn
 
-    function GM:PlayerSelectSpawn(ply, transition)
-        local point = PlayerSelectSpawn(self, ply, transition)
+    if not PlayerSelectSpawn then return end
 
-        if not self.SpawnPoints then -- We likely aren't using the default selector
-            return point
+    function GM:PlayerSelectSpawn(...)
+        if self.SpawnPoints then
+            return PlayerSelectSpawn(self, ...)
         end
 
-        -- We selected an unsuitable spawnpoint
-        if point and unsuitable_points[point] then
-            local sanitized_list = {}
+        local selected_point = PlayerSelectSpawn(self, ...)
+        local spawn_points = self.SpawnPoints
 
-            -- Replace the SpawnPoints cache with a version without
-            -- the unsuitable points and re-roll.
-            --
-            -- We do this because of how the default spawnpoint selector works.
-            -- Even if all the spawnpoints it tries fail IsSpawnpointSuitable, it will
-            -- ultimately just force itself to use one.
-            for k, point in ipairs(self.SpawnPoints) do
-                if not unsuitable_points[point] then
-                    table.insert(sanitized_list, point)
-                end
+        if not spawn_points then
+            return selected_point
+        end
+
+        for i = #spawn_points, 1, -1 do
+            local point = spawn_points[i]
+
+            if spawnpoint.IsUnsuitable(point) then
+                table.remove(spawn_points, i)
             end
-
-            self.SpawnPoints = sanitized_list
-
-            return PlayerSelectSpawn(self, ply, transition)
         end
 
-        return point
+        return PlayerSelectSpawn(self, ...)
     end
+end
+
+hook.Add('Initialize', 'spawnpoint.Initialize', function()
+    wrap_spawnpoint_selector()
+    get_class_list() -- cache class list
 end)
