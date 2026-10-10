@@ -233,6 +233,14 @@ local function wrap_spawnpoint_selector()
     end
 end
 
+-- Hooks
+
+hook.Add('IsSpawnpointSuitable', 'spawnpoint.module.IsSpawnpointSuitable', function(ply, point)
+    if spawnpoint.IsUnsuitable(point) then
+        return false
+    end
+end)
+
 hook.Add('Initialize', 'spawnpoint.Initialize', function()
     wrap_spawnpoint_selector()
     get_class_list() -- cache class list
