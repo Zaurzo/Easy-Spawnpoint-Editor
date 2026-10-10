@@ -39,11 +39,14 @@ local function setup_visual_representation(point, data)
 end
 
 function spawnpoint_editor.Setup()
-    for k, map_point in ipairs(spawnpoint.GetAll(true)) do
-        local data = save_data.points.changed[ map_point:MapCreationID() ]
+    for k, point in spawnpoint.Iterator() do
+        if not point:CreatedByMap() then continue end
 
-        if not setup_visual_representation(map_point, data) then 
+        local data = save_data.points.changed[point:MapCreationID()]
+
+        if not setup_visual_representation(point, data) then 
             ErrorNoHaltWithStack('could not create visual representations for spawnpoints')
+            
             break 
         end
     end
