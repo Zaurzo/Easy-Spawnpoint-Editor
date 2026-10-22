@@ -110,7 +110,18 @@ end
 ---@param class_name string The name of the class to check.
 ---@return boolean
 function spawnpoint.IsClass(class_name)
-    return spawn_point_class_registry[class_name]
+    return spawn_point_class_registry[class_name] or false
+end
+
+---Returns true if the provided entity is a spawnpoint.
+---@param ent Entity The entity to check.
+---@return boolean
+function spawnpoint.IsSpawnpoint(ent)
+    if not isentity(ent) or not ent:IsValid() then
+        return false
+    end
+
+    return spawnpoint.IsClass(ent:GetClass())
 end
 
 ---Returns a new list of all spawnpoints currently on the map.
@@ -148,7 +159,7 @@ end
 ---@param point Entity The spawnpoint to set unsuitable.
 ---@param value boolean Whether or not to be unsuitable.
 function spawnpoint.SetUnsuitable(point, value)
-    if not spawnpoint.IsClass(point:GetClass()) then return end
+    if not spawnpoint.IsSpawnpoint(point) then return end
 
     point.m_SpawnpointModuleUnsuitable = value and true or nil
 
@@ -167,7 +178,7 @@ end
 ---@param point Entity The spawnpoint to set as the master.
 ---@param value boolean Whether or not to be master.
 function spawnpoint.SetMaster(point, value)
-    if not spawnpoint.IsClass(point:GetClass()) then return end
+    if not spawnpoint.IsSpawnpoint(point) then return end
 
     if value then
         point:AddSpawnFlags(SF_MASTER_SPAWNPOINT)
@@ -182,7 +193,7 @@ end
 ---@param point Entity The spawnpoint to check.
 ---@return boolean master
 function spawnpoint.IsMaster(point)
-    if spawnpoint.IsClass(point:GetClass()) then
+    if spawnpoint.IsSpawnpoint(point) then
         return point:HasSpawnFlags(SF_MASTER_SPAWNPOINT)
     end
 end
