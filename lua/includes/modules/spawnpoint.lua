@@ -209,41 +209,6 @@ function spawnpoint.InvalidateCache()
     end
 end
 
--- Detour management
-
--- Clear unsuitable spawnpoints from internal gamemode spawnpoint list
---  I detour this because the default selector has an unfortunate behavior:
---  if all candidates fail/are unsuitable, it will just return the last candidate tried.
-local function wrap_spawnpoint_selector()
-    local GM = gmod.GetGamemode()
-    local PlayerSelectSpawn = GM.PlayerSelectSpawn
-
-    if not PlayerSelectSpawn then return end
-
-    function GM:PlayerSelectSpawn(...)
-        if self.SpawnPoints then
-            return PlayerSelectSpawn(self, ...)
-        end
-
-        local selected_point = PlayerSelectSpawn(self, ...)
-        local spawn_points = self.SpawnPoints
-
-        if not spawn_points then
-            return selected_point
-        end
-
-        for i = #spawn_points, 1, -1 do
-            local point = spawn_points[i]
-
-            if spawnpoint.IsUnsuitable(point) then
-                table.remove(spawn_points, i)
-            end
-        end
-
-        return PlayerSelectSpawn(self, ...)
-    end
-end
-
 -- Hooks
 
 hook.Add('IsSpawnpointSuitable', 'spawnpoint.module.IsSpawnpointSuitable', function(ply, point)
@@ -253,6 +218,5 @@ hook.Add('IsSpawnpointSuitable', 'spawnpoint.module.IsSpawnpointSuitable', funct
 end)
 
 hook.Add('Initialize', 'spawnpoint.Initialize', function()
-    wrap_spawnpoint_selector()
     get_class_list() -- cache class list
 end)
