@@ -130,7 +130,7 @@ function spawnpoint.GetAll()
     local points = {}
 
     for _, ent in ents.Iterator() do
-        if spawn_point_class_registry[ent:GetClass()] then
+        if spawnpoint.IsSpawnpoint(ent) then
             table.insert(points, ent)
         end
     end
