@@ -68,10 +68,8 @@ local function get_class_list()
         return spawn_point_classes
     end
 
-    local gmod_player_start = scripted_ents.GetStored('gmod_player_start')
-    if not gmod_player_start then return end
-    
-    spawn_point_classes = gmod_player_start.t.SpawnPointClasses
+    spawn_point_classes = scripted_ents.GetMember('gmod_player_start', 'SpawnPointClasses')
+    if not spawn_point_classes then return end
 
     local is_in_class_list = {}
 
