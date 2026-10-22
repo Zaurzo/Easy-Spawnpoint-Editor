@@ -161,7 +161,7 @@ end
 function spawnpoint.SetUnsuitable(point, value)
     if not spawnpoint.IsSpawnpoint(point) then return end
 
-    point.m_SpawnpointModuleUnsuitable = value and true or nil
+    point._spawnpoint_module_unsuitable = value and true or nil
 
     spawnpoint.InvalidateCache()
 end
@@ -170,7 +170,7 @@ end
 ---@param point Entity The spawnpoint to check.
 ---@return boolean unsuitable
 function spawnpoint.IsUnsuitable(point)
-    return point.m_SpawnpointModuleUnsuitable
+    return point._spawnpoint_module_unsuitable
 end
 
 ---Sets a spawnpoint to be the master spawnpoint.
