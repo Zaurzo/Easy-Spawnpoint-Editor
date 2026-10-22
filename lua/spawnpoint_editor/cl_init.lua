@@ -5,6 +5,10 @@ net.Receive('easy_spawnpoint_editor', function()
     local net_type = net.ReadUInt(2)
     local ent = net.ReadEntity()
 
+    if not ent:IsValid() then
+        ent = nil
+    end
+
     if net_type == SpawnpointEditor.NetType.Pickup then
         held_physics_entity = ent
     elseif net_type == SpawnpointEditor.NetType.Move then
