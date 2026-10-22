@@ -193,9 +193,11 @@ end
 ---@param point Entity The spawnpoint to check.
 ---@return boolean master
 function spawnpoint.IsMaster(point)
-    if spawnpoint.IsSpawnpoint(point) then
-        return point:HasSpawnFlags(SF_MASTER_SPAWNPOINT)
+    if not spawnpoint.IsSpawnpoint(point) then
+        return false
     end
+
+    return point:HasSpawnFlags(SF_MASTER_SPAWNPOINT)
 end
 
 ---Invalidates the internal spawnpoint entity cache used by the gamemode.
