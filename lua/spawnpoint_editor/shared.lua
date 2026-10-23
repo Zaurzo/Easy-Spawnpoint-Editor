@@ -1,19 +1,6 @@
--- Easy Spawnpoint Editor
--- by Zaurzo
-
-AddCSLuaFile()
-
 require('spawnpoint')
 
 SpawnpointEditor = SpawnpointEditor or {}
-
-if SERVER then
-    AddCSLuaFile('cl_init.lua')
-    
-    include('sv_init.lua')
-else
-    include('cl_init.lua')
-end
 
 ---@enum NetType
 SpawnpointEditor.NetType = {

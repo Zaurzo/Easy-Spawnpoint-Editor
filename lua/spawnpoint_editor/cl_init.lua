@@ -1,3 +1,5 @@
+include('shared.lua')
+
 local held_physics_entity
 local selected_spawnpoint
 

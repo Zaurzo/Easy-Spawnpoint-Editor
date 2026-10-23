@@ -1,3 +1,8 @@
+AddCSLuaFile('cl_init.lua')
+AddCSLuaFile('shared.lua')
+
+include('shared.lua')
+
 util.AddNetworkString('easy_spawnpoint_editor')
 
 ---Sets whether or not a spawnpoint should be unsuitable for selection.
