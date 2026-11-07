@@ -2,14 +2,6 @@ require('spawnpoint')
 
 SpawnpointEditor = SpawnpointEditor or {}
 
----@enum NetType
-SpawnpointEditor.NetType = {
-    ---Player physics object pickup.
-    Pickup = 0,
-    ---Spawnpoint move operation.
-    Move = 1
-}
-
 ---@enum ToolOperation
 SpawnpointEditor.ToolOperation = {
     --- The default operation.

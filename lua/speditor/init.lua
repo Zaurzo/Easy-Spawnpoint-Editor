@@ -3,7 +3,7 @@ AddCSLuaFile('shared.lua')
 
 include('shared.lua')
 
-util.AddNetworkString('easy_spawnpoint_editor')
+util.AddNetworkString('speditor_physics_pickup')
 
 ---Sets whether or not a spawnpoint should be unsuitable for selection.
 ---@param point Entity The spawnpoint to change unsuitable status of.
@@ -27,27 +27,10 @@ function SpawnpointEditor:IsUnsuitable(point)
     return false
 end
 
----@param ply Player
----@param point Entity
----@internal
-function SpawnpointEditor:SetSelectedSpawnpoint(ply, point)
-    net.Start('easy_spawnpoint_editor')
-    net.WriteUInt(SpawnpointEditor.NetType.Move, 2)
-    net.WriteEntity(point)
-    net.Send(ply)
-
-    ply._spawnpoint_editor_selected = point
-end
-
-function SpawnpointEditor:GetSelectedSpawnpoint(ply)
-    return ply._spawnpoint_editor_selected
-end
-
 -- Hooks
 
 local function send_pickup_entity(ent, ply)
-    net.Start('easy_spawnpoint_editor')
-    net.WriteUInt(SpawnpointEditor.NetType.Pickup, 2)
+    net.Start('speditor_physics_pickup')
     net.WriteEntity(ent)
     net.Send(ply)
 end
