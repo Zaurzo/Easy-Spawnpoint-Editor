@@ -11,6 +11,7 @@ matproxy.Add {
     end
 }
 
+--[[
 function ENT:Setup()
     self.halo_tab = { self }
 end
@@ -34,7 +35,7 @@ function ENT:Think()
             local tip = self:GetSpawnPointClassName()
 
             if self:GetIsMasterSpawnPoint() then
-                tip = string.format('%s (%s)', tip, language.GetPhrase('spawnpoint.master'))
+                tip = string.format('%s (%s)', tip, language.GetPhrase('speditor.master'))
             end
 
             local offset = self:OBBCenter()
@@ -47,7 +48,7 @@ function ENT:Think()
     end
 
     self.CanDraw = true
-end
+end]]
 
 function ENT:Draw()
     if self.CanDraw then

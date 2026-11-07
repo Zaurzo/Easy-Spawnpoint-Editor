@@ -1,4 +1,4 @@
-require('spawnpoint')
+require('lua.weapons.gmod_tool.stools.speditor')
 
 SpawnpointEditor = SpawnpointEditor or {}
 
@@ -29,17 +29,25 @@ function SpawnpointEditor:IsAllowedToUseTool(ply)
     return ply:IsSuperAdmin()
 end
 
----Returns true if the provided player is currently using the spawnpoint editor tool.
----@param ply Player The player to check.
----@return boolean
-function SpawnpointEditor:IsUsingTool(ply)
+---Returns the table of the spawnpoint editor tool if the player is currently using it.
+---@param ply Player
+---@return TOOL speditor
+function SpawnpointEditor:TryGetTool(ply)
+    if not self:IsAllowedToUseTool(ply) then
+        return nil
+    end
+    
     local tool = ply:GetTool()
 
-    if not tool or tool.Mode ~= 'spawnpoint' then
-        return false
+    if not tool or tool.Mode ~= 'speditor' then
+        return nil
     end
 
     local wep = ply:GetActiveWeapon()
 
-    return wep:IsValid() and wep:GetClass() == 'gmod_tool'
+    if not wep:IsValid() or wep:GetClass() ~= 'gmod_tool' then
+        return nil
+    end
+
+    return tool
 end
