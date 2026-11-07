@@ -46,34 +46,31 @@ end)
 -- Clear unsuitable spawnpoints from internal gamemode spawnpoint list
 --  I detour this because the default selector has an unfortunate behavior:
 --  if all candidates fail/are unsuitable, it will just return the last candidate tried.
-local function wrap_spawnpoint_selector()
-    local GM = gmod.GetGamemode()
-    local PlayerSelectSpawn = GM.PlayerSelectSpawn
 
-    if not PlayerSelectSpawn then return end
+local GM = gmod.GetGamemode()
+local GM_PlayerSelectSpawn = GM.PlayerSelectSpawn
 
-    function GM:PlayerSelectSpawn(...)
-        if self.SpawnPoints then
-            return PlayerSelectSpawn(self, ...)
-        end
+if not GM_PlayerSelectSpawn then return end
 
-        local selected_point = PlayerSelectSpawn(self, ...)
-        local spawn_points = self.SpawnPoints
-
-        if not spawn_points then
-            return selected_point
-        end
-
-        for i = #spawn_points, 1, -1 do
-            local point = spawn_points[i]
-
-            if SpawnpointEditor:IsUnsuitable(point) then
-                table.remove(spawn_points, i)
-            end
-        end
-
-        return PlayerSelectSpawn(self, ...)
+function GM:PlayerSelectSpawn(...)
+    if self.SpawnPoints then -- Unsuitable spawnpoints have already been cleared out
+        return GM_PlayerSelectSpawn(self, ...)
     end
-end
 
-hook.Add('OnGamemodeLoaded', 'SpawnpointEditor.WrapSelector', wrap_spawnpoint_selector)
+    local selected_point = GM_PlayerSelectSpawn(self, ...)
+    local spawn_points = self.SpawnPoints
+
+    if not spawn_points then
+        return selected_point
+    end
+
+    for i = #spawn_points, 1, -1 do
+        local point = spawn_points[i]
+
+        if SpawnpointEditor:IsUnsuitable(point) then
+            table.remove(spawn_points, i)
+        end
+    end
+
+    return GM_PlayerSelectSpawn(self, ...)
+end
