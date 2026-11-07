@@ -35,6 +35,12 @@ function SpawnpointEditor:SetSelectedSpawnpoint(ply, point)
     net.WriteUInt(SpawnpointEditor.NetType.Move, 2)
     net.WriteEntity(point)
     net.Send(ply)
+
+    ply._spawnpoint_editor_selected = point
+end
+
+function SpawnpointEditor:GetSelectedSpawnpoint(ply)
+    return ply._spawnpoint_editor_selected
 end
 
 -- Hooks
