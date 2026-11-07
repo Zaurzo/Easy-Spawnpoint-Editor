@@ -1,4 +1,3 @@
-
 ENT.Base = 'base_anim'
 ENT.Type = 'anim'
 ENT.Model = 'models/editor/playerstart.mdl'
@@ -35,15 +34,14 @@ end
 local MASK_PLAYER_USE = 100745227
 
 function ENT:TestCollision(startpos, delta, isbox, extends, mask)
-    if mask == MASK_ALL then return false end -- Block properties menu
+    if mask == MASK_ALL then -- Block properties menu
+        return false
+    end
     
     -- Allow player +use
     if bit.band(mask, MASK_PLAYER_USE) == MASK_PLAYER_USE then
         return true
     end
 
-    -- I need everything to pass through this entity, but allow
-    -- client-side traces to hit it, so I just use and check for 
-    -- this random contents mask.
-    return bit.band(mask, CONTENTS_CURRENT_0) == CONTENTS_CURRENT_0
+    return mask == SpawnpointEditor.TRACE_MASK
 end

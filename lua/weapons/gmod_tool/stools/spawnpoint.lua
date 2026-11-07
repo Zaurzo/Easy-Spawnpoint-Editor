@@ -69,7 +69,7 @@ function TOOL:GetTrace()
 	trace.start = ply:EyePos()
 	trace.endpos = trace.start + (ply:GetAimVector() * self.SelectDistance)
 	trace.filter = ply
-    trace.mask = bit.bor(MASK_SOLID, CONTENTS_CURRENT_0)
+    trace.mask = SpawnpointEditor.TRACE_MASK
 
     return util.TraceLine(trace)
 end

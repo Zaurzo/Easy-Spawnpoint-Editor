@@ -2,6 +2,13 @@ require('spawnpoint')
 
 SpawnpointEditor = SpawnpointEditor or {}
 
+-- The mask a trace needs to have to be able to hit the client spawnpoints.
+SpawnpointEditor.TRACE_MASK = bit.bor(MASK_SOLID, CONTENTS_CURRENT_0)
+
+-- Note: I need the custom spawnpoints to not collide with anything, but still have the
+-- tool's trace to be able to hit them. I chose this random contents mask to ensure a
+-- foreign trace won't hit them.
+
 ---@enum ToolOperation
 SpawnpointEditor.ToolOperation = {
     --- The default operation.
