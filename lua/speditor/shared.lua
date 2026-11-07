@@ -19,7 +19,7 @@ SpawnpointEditor.ToolOperation = {
     Move = 2
 }
 
-spawnpoint.RegisterClass('editable_spawnpoint')
+spawnpoint.RegisterClass('speditor_spawnpoint')
 
 ---Returns true if the provided player is allowed to use the spawnpoint editor tool.
 ---If servers wish to change the permissions, they should override this function.
