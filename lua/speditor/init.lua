@@ -11,7 +11,7 @@ util.AddNetworkString('speditor_physics_pickup')
 function SpawnpointEditor:SetUnsuitable(point, value)
     if not spawnpoint.IsSpawnpoint(point) then return end
 
-    point._spawnpoint_editor_unsuitable = value and true or false
+    point._speditor_unsuitable = value and true or false
 
     spawnpoint.SetUnsuitable(point, value)
 end
@@ -21,7 +21,7 @@ end
 ---@return boolean
 function SpawnpointEditor:IsUnsuitable(point)
     if spawnpoint.IsSpawnpoint(point) then
-        return point._spawnpoint_editor_unsuitable or false
+        return point._speditor_unsuitable or false
     end
 
     return false
