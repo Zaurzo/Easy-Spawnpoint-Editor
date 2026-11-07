@@ -48,16 +48,14 @@ end)
 --  if all candidates fail/are unsuitable, it will just return the last candidate tried.
 
 local GM = gmod.GetGamemode()
-local GM_PlayerSelectSpawn = GM.PlayerSelectSpawn
-
-if not GM_PlayerSelectSpawn then return end
+GM._PlayerSelectSpawn = GM._PlayerSelectSpawn or GM.PlayerSelectSpawn
 
 function GM:PlayerSelectSpawn(...)
     if self.SpawnPoints then -- Unsuitable spawnpoints have already been cleared out
-        return GM_PlayerSelectSpawn(self, ...)
+        return self:_PlayerSelectSpawn(...)
     end
 
-    local selected_point = GM_PlayerSelectSpawn(self, ...)
+    local selected_point = self:_PlayerSelectSpawn(...)
     local spawn_points = self.SpawnPoints
 
     if not spawn_points then
@@ -72,5 +70,5 @@ function GM:PlayerSelectSpawn(...)
         end
     end
 
-    return GM_PlayerSelectSpawn(self, ...)
+    return self:_PlayerSelectSpawn(...)
 end
