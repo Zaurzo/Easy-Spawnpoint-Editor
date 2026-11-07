@@ -3,13 +3,14 @@ ENT.Type = 'anim'
 ENT.Model = 'models/editor/playerstart.mdl'
 ENT.BodyMaterial = 'editor/orange_mono'
 ENT.DoNotDuplicate = true
+ENT.DefaultColor = Color(0, 255, 0)
 
 AccessorFunc(ENT, '_no_collision', 'NoCollision', FORCE_BOOL)
 
 function ENT:Initialize()
     self:SetModel(self.Model)
     self:SetSubMaterial(0, self.BodyMaterial)
-    self:EnableCustomCollisions()
+    self:SetColor(self.DefaultColor)
     self:DrawShadow(false)
     self:SetSolid(SOLID_BBOX)
 
@@ -17,16 +18,16 @@ function ENT:Initialize()
         Vector(-10, -10, 0),
         Vector(10, 10, 70)
     )
+
+    self:EnableCustomCollisions()
 end
 
 function ENT:SetupDataTables()
-    self:NetworkVar('Vector', 'DisplayColor')
-    self:NetworkVar('String', 'DisplayClass')
+    self:NetworkVar('String', 'SpawnpointClass')
     self:NetworkVar('Bool', 'Master')
 
     if SERVER then
-        self:SetDisplayColor(Vector(0, 1, 0))
-        self:SetDisplayClass('speditor_spawnpoint')
+        self:SetSpawnpointClass(self:GetClass())
         self:SetMaster(false)
     end
 end

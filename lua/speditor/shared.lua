@@ -1,4 +1,4 @@
-require('lua.weapons.gmod_tool.stools.speditor')
+require('spawnpoint')
 
 SpawnpointEditor = SpawnpointEditor or {}
 
@@ -36,7 +36,7 @@ function SpawnpointEditor:TryGetTool(ply)
     if not self:IsAllowedToUseTool(ply) then
         return nil
     end
-    
+
     local tool = ply:GetTool()
 
     if not tool or tool.Mode ~= 'speditor' then

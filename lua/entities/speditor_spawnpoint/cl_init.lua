@@ -1,16 +1,6 @@
 
 include('shared.lua')
 
-matproxy.Add {
-    name = 'SpawnPointColor',
-
-    bind = function(self, mat, ent)
-        if ent.GetSpawnPointColor then
-            mat:SetVector('$color2', ent:GetSpawnPointColor())
-        end
-    end
-}
-
 --[[
 function ENT:Setup()
     self.halo_tab = { self }
@@ -51,7 +41,12 @@ function ENT:Think()
 end]]
 
 function ENT:Draw()
-    if self.CanDraw then
-        self:DrawModel()
-    end
+    local color = self:GetColor()
+
+    render.SuppressEngineLighting(true)
+    render.SetColorModulation(color.r / 255, color.g / 255, color.b / 255)
+
+    self:DrawModel()
+
+    render.SuppressEngineLighting(false)
 end

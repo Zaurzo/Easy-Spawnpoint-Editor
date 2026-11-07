@@ -20,28 +20,23 @@ end
 ---@param point Entity The spawnpoint to check.
 ---@return boolean
 function SpawnpointEditor:IsUnsuitable(point)
-    if spawnpoint.IsSpawnpoint(point) then
-        return point._speditor_unsuitable or false
+    if not spawnpoint.IsSpawnpoint(point) then
+        return false
     end
 
-    return false
+    return point._speditor_unsuitable or false
 end
 
 -- Hooks
 
-local function send_pickup_entity(ent, ply)
+local function send_pickup_entity(ply, ent)
     net.Start('speditor_physics_pickup')
-    net.WriteEntity(ent)
+    net.WriteEntity(ent or NULL)
     net.Send(ply)
 end
 
-hook.Add('OnPlayerPhysicsPickup', 'SpawnpointEditor', function(ply, ent)
-    send_pickup_entity(ent, ply)
-end)
-
-hook.Add('OnPlayerPhysicsDrop', 'SpawnpointEditor', function(ply)
-    send_pickup_entity(NULL, ply)
-end)
+hook.Add('OnPlayerPhysicsPickup', 'SpawnpointEditor', send_pickup_entity)
+hook.Add('OnPlayerPhysicsDrop', 'SpawnpointEditor', send_pickup_entity)
 
 -- Clear unsuitable spawnpoints from internal gamemode spawnpoint list
 --  I detour this because the default selector has an unfortunate behavior:
